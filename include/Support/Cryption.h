@@ -23,6 +23,8 @@ namespace CoinBill
     typedef RSA_HANDLE              RSAPUB_HANDLE;
     typedef RSA_HANDLE              RSAPRV_HANDLE;
 
+    bool isSHA256HashEqual(SHA256_t& LHS, SHA256_t& RHS);
+    bool isSHA512HashEqual(SHA512_t& LHS, SHA512_t& RHS);
 
     // key, hash object allocator.
     //
@@ -42,11 +44,6 @@ namespace CoinBill
     void queryRSADelete(RSA_HANDLE& handle);
     void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
     void queryRSADecrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
-
-    template <class Ty>
-    void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, Ty* pIn) {
-        queryRSAEncrypt(handle, pOut, (void*)pIn, sizeof(Ty));
-    }
 
     // SHA-3 256 Hash Binding.
     //

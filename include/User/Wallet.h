@@ -27,8 +27,8 @@ namespace CoinBill
 
     public:
         SHA256_t&   getAccount();
-        RSA_t&  getPubKey();
-        RSA_t&  getPrvKey();
+        RSA_t&      getPubKey();
+        RSA_t&      getPrvKey();
         
         SHA512_t&   getWalletBlock();
         uint64_t    getWalletCoin();

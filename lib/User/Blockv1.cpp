@@ -24,12 +24,12 @@ namespace CoinBill
         querySHA512Engine(handle);
         try {
             // Pre hashing it before we iterate it.
-            querySHA512Update(handle, &block->m_Header, sizeof(BlockHeaderV1));
+            querySHAUpdate(handle, &block->m_Header, sizeof(BlockHeaderV1));
             querySHA512Verify(handle, *hashTmp1);
 
             // To iterate it.
             for (unsigned int i = 0; i < cycle - 1; ++i) {
-                querySHA512Update(handle, *hashTmp1, sizeof(SHA512_t));
+                querySHAUpdate(handle, *hashTmp1, sizeof(SHA512_t));
                 querySHA512Verify(handle, *hashTmp2);
 
                 std::swap(hashTmp1, hashTmp2);

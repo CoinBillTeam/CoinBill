@@ -66,7 +66,7 @@ namespace CoinBill
         bool RefreshNodeSign(Wallet* user);
     };
 
-    RSA_t encryptTransaction(TransactionHead& transaction, Wallet* user);
+    RSA_t signTransaction(TransactionHead& transaction, Wallet* user);
 }
 
 #endif //COINBILL_USER_TRANSACTION
