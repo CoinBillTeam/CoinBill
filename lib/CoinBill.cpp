@@ -1,12 +1,9 @@
-#include <Support/Logger.h>
-#include <Support/Cryption.h>
-
+#include <Support/CLILogger.h>
+#include <Support/CryptBase.h>
 #include <Network/SocketFuncBinding.h>
 #include <Network/Socket.h>
 
 #include <User/Host.h>
-#include <User/Blockv1.h>
-#include <User/Wallet.h>
 
 #include <iostream>
 
@@ -32,8 +29,6 @@ int main(int args, char* argc[], char* argv[])
     InitCryption();
     LogInf() << "Initialized cryption algorithms."              << std::endl;
 
-    Wallet* tw = createAccount();
-    tw->dump();
 
     return 0;
 }

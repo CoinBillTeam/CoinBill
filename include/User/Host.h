@@ -1,7 +1,7 @@
 #ifndef COINBILL_USER_HOST
 #define COINBILL_USER_HOST
 
-#include <Support/Types.h>
+#include <cstdint>
 #include <vector>
 
 namespace CoinBill

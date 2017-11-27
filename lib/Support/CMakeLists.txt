@@ -1,9 +1,12 @@
 AddCBLib(CoinBillSupport
-    Cryption.cpp
+    CryptBase.cpp
+    CryptDecl.cpp
 
     ${COINBILL_INC_DIR}/Support/Basic.h
-    ${COINBILL_INC_DIR}/Support/Types.h
-    ${COINBILL_INC_DIR}/Support/Cryption.h
-    ${COINBILL_INC_DIR}/Support/Logger.h
-    ${COINBILL_INC_DIR}/Support/MemPool.h
+    ${COINBILL_INC_DIR}/Support/CLILogger.h
+    ${COINBILL_INC_DIR}/Support/CryptType.h
+    ${COINBILL_INC_DIR}/Support/CryptBase.h
+    ${COINBILL_INC_DIR}/Support/CryptDecl.h
+    ${COINBILL_INC_DIR}/Support/ResourcePool.h
+    ${COINBILL_INC_DIR}/Support/ResourceSecureVH.h
 )

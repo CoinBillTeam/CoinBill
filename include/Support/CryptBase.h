@@ -1,12 +1,12 @@
 #pragma once
 
-#ifndef COINBILL_SUPPORT_ALGORITHM
-#define COINBILL_SUPPORT_ALGORITHM
+#ifndef COINBILL_SUPPORT_CRYPT_BASE
+#define COINBILL_SUPPORT_CRYPT_BASE
 
 // SHA / RSA Headers.
 
 #include <vector>
-#include <Support/Types.h>
+#include <Support/CryptType.h>
 #include <Support/Basic.h>
 
 namespace CoinBill
@@ -34,34 +34,34 @@ namespace CoinBill
 
     // key, hash object disposer.
     //
-    void disposeSHA256(SHA256_t* object);
-    void disposeSHA512(SHA512_t* object);
-    void disposeRSA(RSA_t* object);
+    inline void disposeSHA256(SHA256_t* object);
+    inline void disposeSHA512(SHA512_t* object);
+    inline void disposeRSA(RSA_t* object);
         
     // RSA - 4098 Binding.
-    void queryRSAEnginePub(RSAPUB_HANDLE& handle, short PubExp, RSA_t& Module);
-    void queryRSAEnginePrv(RSAPRV_HANDLE& handle, short PubExp, RSA_t& Module, RSA_t& PrvKey);
-    void queryRSADelete(RSA_HANDLE& handle);
-    void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
-    void queryRSADecrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
+    inline void queryRSAEnginePub(RSAPUB_HANDLE& handle, short PubExp, RSA_t& Module);
+    inline void queryRSAEnginePrv(RSAPRV_HANDLE& handle, short PubExp, RSA_t& Module, RSA_t& PrvKey);
+    inline void queryRSADelete(RSA_HANDLE& handle);
+    inline void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
+    inline void queryRSADecrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
 
     // SHA-3 256 Hash Binding.
     //
-    void querySHA256Engine(SHA256_HANDLE& handle);
-    void querySHA256Verify(SHA256_HANDLE& handle, SHA256_t& out);
-    void querySHA256Delete(SHA256_HANDLE& handle);
-    void querySHA256Flush(SHA256_HANDLE& handle);
+    inline void querySHA256Engine(SHA256_HANDLE& handle);
+    inline void querySHA256Verify(SHA256_HANDLE& handle, SHA256_t& out);
+    inline void querySHA256Delete(SHA256_HANDLE& handle);
+    inline void querySHA256Flush(SHA256_HANDLE& handle);
 
     // SHA-3 512 Hash Binding.
     //
-    void querySHA512Engine(SHA512_HANDLE& handle);
-    void querySHA512Verify(SHA512_HANDLE& handle, SHA512_t& out);
-    void querySHA512Delete(SHA512_HANDLE& handle);
-    void querySHA512Flush(SHA512_HANDLE& handle);
+    inline void querySHA512Engine(SHA512_HANDLE& handle);
+    inline void querySHA512Verify(SHA512_HANDLE& handle, SHA512_t& out);
+    inline void querySHA512Delete(SHA512_HANDLE& handle);
+    inline void querySHA512Flush(SHA512_HANDLE& handle);
 
     // Update Function
     //
-    void querySHAUpdate(CRYPT_HANDLE& handle, void* pIn, size_t szIn);
+    inline void querySHAUpdate(CRYPT_HANDLE& handle, void* pIn, size_t szIn);
 
     template <class Ty>
     void querySHAUpdate(CRYPT_HANDLE& handle, Ty* pIn) {
@@ -75,6 +75,6 @@ namespace CoinBill
     void querySHAUpdate(CRYPT_HANDLE& handle, Ty (&pIn)[size]) {
         querySHAUpdate(handle, (void*)pIn, sizeof(Ty * size));
     }
+} // end namespace CoinBill
 
-};
-#endif // COINBILL_SUPPORT_ALGORITHM
+#endif // end COINBILL_SUPPORT_CRYPT_BASE

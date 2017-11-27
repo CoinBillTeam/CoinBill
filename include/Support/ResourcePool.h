@@ -1,15 +1,14 @@
-#ifndef COINBILL_SUPPORT_MEMPOOL
-#define COINBILL_SUPPORT_MEMPOOL
+#ifndef COINBILL_SUPPORT_RESOURCE_POOL
+#define COINBILL_SUPPORT_RESOURCE_POOL
 
 #include <mutex>
 #include <list>
 #include <Support/Basic.h>
-#include <Support/Types.h>
 
 namespace CoinBill {
 
     template <class Ty, unsigned int szRsvMem = 32, unsigned int szRsvList = 128>
-    class MemPool {
+    class ResourcePool {
         // Node Reserved Infomations.
         std::mutex          NodeMtx;
         Ty**                NodeLst; // Actual Node List. (First of Node)
@@ -20,10 +19,10 @@ namespace CoinBill {
         std::list<Ty*>      Pools;
 
     public:
-        MemPool() : NodeLst(nullptr), NodeCur(nullptr), ListSize(0) {
+        ResourcePool() : NodeLst(nullptr), NodeCur(nullptr), ListSize(0) {
 
         }
-        ~MemPool() {
+        ~ResourcePool() {
             delete NodeLst;
             for (Ty* pool : Pools) {
                 delete pool;
@@ -79,19 +78,19 @@ namespace CoinBill {
 }
 
 template <class Ty>
-void* operator new(size_t size, CoinBill::MemPool<Ty>& pool) {
+void* operator new(size_t size, CoinBill::ResourcePool<Ty>& pool) {
     return pool.create();
 }
 template <class Ty>
-void* operator new(size_t size, CoinBill::MemPool<Ty>* pool) {
+void* operator new(size_t size, CoinBill::ResourcePool<Ty>* pool) {
     return pool->create();
 }
 template <class Ty>
-void operator delete(void* ptr, CoinBill::MemPool<Ty>& pool) {
+void operator delete(void* ptr, CoinBill::ResourcePool<Ty>& pool) {
     pool.distroy((Ty*)ptr);
 }
 template <class Ty>
-void operator delete(void* ptr, CoinBill::MemPool<Ty>* pool) {
+void operator delete(void* ptr, CoinBill::ResourcePool<Ty>* pool) {
     pool->distroy((Ty*)ptr);
 }
 

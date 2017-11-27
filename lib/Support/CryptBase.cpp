@@ -1,12 +1,13 @@
 #include <memory>
 
 #include <Support/Basic.h>
-#include <Support/Cryption.h>
-#include <Support/MemPool.h>
+#include <Support/CryptBase.h>
+#include <Support/CryptType.h>
+#include <Support/ResourcePool.h>
+
 #include <iostream>
 #include <sstream>
 
-#include <User/Blockv1.h>
 
 // CryptoPP headers.
 #include <rsa.h>
@@ -17,22 +18,21 @@ CryptoPP::RandomNumberGenerator* RNG_Engine;
 
 namespace CoinBill
 {                   
-    MemPool<SHA256_t>                           SHA256_MemPool;
-    MemPool<CryptoPP::SHA3_256>                 SHA256Engine_MemPool;
+    ResourcePool<SHA256_t>                          SHA256_MemPool;
+    ResourcePool<CryptoPP::SHA3_256>                SHA256Engine_MemPool;
 
-    MemPool<SHA512_t>                           SHA512_MemPool;
-    MemPool<CryptoPP::SHA3_512>                 SHA512Engine_MemPool;
+    ResourcePool<SHA512_t>                          SHA512_MemPool;
+    ResourcePool<CryptoPP::SHA3_512>                SHA512Engine_MemPool;
 
-    MemPool<RSA_t>                              RSA_MemPool;
-    MemPool<CryptoPP::InvertibleRSAFunction>    RSAEngine_MemPoolPrv;
-    MemPool<CryptoPP::RSAFunction>              RSAEngine_MemPoolPub;
-    
+    ResourcePool<RSA_t>                             RSA_MemPool;
+    ResourcePool<CryptoPP::InvertibleRSAFunction>   RSAEngine_MemPoolPrv;
+    ResourcePool<CryptoPP::RSAFunction>             RSAEngine_MemPoolPub;
 
     // Mananged key, hash object allocators.
     // we do allocate key, hash holder from MemPool class for faster allocation.
     // do not deallocate objects in other place, use disposeXXX function.
     //
-    // those objects are thread-safe, mutex is inside in MemPool class.
+    // those objects are thread-safe, mutex is inside in ResourcePool class.
     // you don't need to care about thread safes.
     SHA256_t* createSHA256()                    { return new (SHA256_MemPool) SHA256_t(); }
     SHA512_t* createSHA512()                    { return new (SHA512_MemPool) SHA512_t(); }

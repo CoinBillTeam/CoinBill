@@ -11,14 +11,15 @@
 
 namespace CoinBill
 {
-    
+    // TODO : Maybe we can handle those types more gentely... those are not really good implements.
+
     template <unsigned int size, class BaseTy = unsigned char, BaseTy max_size = (BaseTy)(-1)>
-    class BigTypeBase
+    class CryptType
     {
         // NOTE : DO NOT CREATE ANY VIRTUAL METHODS, OR ANY OTHER VARIABLES.
         //        THIS IS FOR STORING RAW BIG INT VARIABLES.
     protected:
-        using MTy = BigTypeBase<size, BaseTy>;
+        using MTy = CryptType<size, BaseTy>;
         BaseTy data[size];
 
         void ZeroFill();
@@ -107,13 +108,13 @@ namespace CoinBill
 
         // custom type constructor.
         template<class Ty>
-        BigTypeBase(const Ty Init) {
+        CryptType(const Ty Init) {
             *this = Init;
         }
         
         // default type constructor / distructor.
-        BigTypeBase() = default;
-        ~BigTypeBase() = default;
+        CryptType() = default;
+        ~CryptType() = default;
 
         uint8_t* toUint8(unsigned int& _size) { return toType<uint8_t>(_size); }
         uint16_t* toUint16(unsigned int& _size) { return toType<uint16_t>(_size); }
@@ -126,17 +127,17 @@ namespace CoinBill
         uint64_t* toUint64() { return toType<uint64_t>(); }
     };
 
-    typedef BigTypeBase<2, uint64_t>                                uint128_t;
-    typedef BigTypeBase<4, uint64_t>                                uint256_t;
-    typedef BigTypeBase<8, uint64_t>                                uint512_t;
-    typedef BigTypeBase<64, uint64_t>                               uint4096_t;
+    typedef CryptType<2, uint64_t>                                  uint128_t;
+    typedef CryptType<4, uint64_t>                                  uint256_t;
+    typedef CryptType<8, uint64_t>                                  uint512_t;
+    typedef CryptType<64, uint64_t>                                 uint4096_t;
 
     typedef uint4096_t                                              RSA_t;
     typedef uint256_t                                               SHA256_t;
     typedef uint512_t                                               SHA512_t;
 
     template <unsigned int size, class BaseTy, BaseTy maxSize>
-    inline bool BigTypeBase<size, BaseTy, maxSize>::isEmpty() {
+    inline bool CryptType<size, BaseTy, maxSize>::isEmpty() {
         for (unsigned int i = 0; i < size; ++i)
             if (data[i] != 0)
                 return false;
@@ -144,7 +145,7 @@ namespace CoinBill
     }
 
     template <unsigned int size, class BaseTy, BaseTy maxSize>
-    inline void BigTypeBase<size, BaseTy, maxSize>::ZeroFill() {
+    inline void CryptType<size, BaseTy, maxSize>::ZeroFill() {
         for (unsigned int i = 0; i < size; ++i) data[i] = 0;
     }
 
