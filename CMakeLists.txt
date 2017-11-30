@@ -45,10 +45,10 @@ if(Boost_FOUND)
     endif()
 endif()
 
-option(USE_SIMD_INSTRUCTIONS "User SIMD for better performance" TRUE)
-if(USE_SIMD_INSTRUCTIONS)
-    message(STATUS "CoinBill : SIMD Enable.")
-    list(APPEND COINBILL_TARGET_DEFINES -DCOINBILL_USE_SIMD)
+option(USE_AVX2_INSTRUCTIONS "Use AVX2 SIMD for better performance" TRUE)
+if(USE_AVX2_INSTRUCTIONS)
+    message(STATUS "CoinBill : AVX2 SIMD Enable.")
+    list(APPEND COINBILL_TARGET_DEFINES -DCOINBILL_USE_AVX2)
 endif()
 
 # Add and initialize subdirectories.

@@ -1,6 +1,5 @@
 #include <memory>
 
-#include <Support/Basic.h>
 #include <Support/CryptBase.h>
 #include <Support/CryptType.h>
 #include <Support/ResourcePool.h>
@@ -52,7 +51,7 @@ namespace CoinBill
 
     /// TODO : is there are better way to check is equal using SIMD..
     ///        Maybe we can use XOR with it.
-#ifdef COINBILL_USE_SIMD
+#ifdef COINBILL_USE_AVX2
     bool isSHA256HashEqual(SHA256_t& LHS, SHA256_t& RHS) {
         __m256i vl = _mm256_load_si256(LHS.toType<__m256i>());
         __m256i vr = _mm256_load_si256(RHS.toType<__m256i>());
@@ -142,12 +141,12 @@ namespace CoinBill
     // finalize crypt instance.
     // we create a actaul hash here. out buffer should not be nullptr.
     void querySHA256Verify(SHA256_HANDLE& handle, SHA256_t& out) {
-        CryptoPP::SHA3*
-            pEngine = (CryptoPP::SHA3*)handle;
+        auto*
+            pEngine = (CryptoPP::SHA3_256*)handle;
             pEngine->Final(out);
     }
     void querySHA512Verify(SHA512_HANDLE& handle, SHA512_t& out) {
-        CryptoPP::SHA3_512*
+        auto*
             pEngine = (CryptoPP::SHA3_512*)handle;
             pEngine->Final(out);
     }
@@ -157,42 +156,37 @@ namespace CoinBill
     // 
     // we don't really recommend if you are reusing a object, use flush instead of this.
     void querySHA256Delete(SHA256_HANDLE& handle) {
-        CryptoPP::SHA3_256*
-            pEngine = (CryptoPP::SHA3_256*)handle;
-
-        SHA256Engine_MemPool.distroy(pEngine);
+        auto* pEngine = (CryptoPP::SHA3_256*)handle;
+        operator delete(pEngine, SHA256_MemPool);
     }
     void querySHA512Delete(SHA512_HANDLE& handle) {
-        CryptoPP::SHA3_512*
-            pEngine = (CryptoPP::SHA3_512*)handle;
-
-        SHA512Engine_MemPool.distroy(pEngine);
+        auto* pEngine = (CryptoPP::SHA3_512*)handle;
+        operator delete(pEngine, SHA512_MemPool);
     }
-    void queryRSADelete(RSA_HANDLE& handle) {
-        CryptoPP::InvertibleRSAFunction*
-            pEngine = (CryptoPP::InvertibleRSAFunction*)handle;
+    void queryRSADeletePub(RSA_HANDLE& handle) {
+        auto* pEngine = (CryptoPP::RSAFunction*)handle;
+        operator delete(pEngine, RSAEngine_MemPoolPub);
+    }
+    void queryRSADeletePrv(RSA_HANDLE& handle) {
+        auto* pEngine = (CryptoPP::InvertibleRSAFunction*)handle;
+        operator delete(pEngine, RSAEngine_MemPoolPrv);
     }
 
     // flush instance.
     // flush instance values, that stored using verifiy, update function.
     void querySHA256Flush(SHA256_HANDLE& handle) {
-        CryptoPP::SHA3_256*
-            pEngine = (CryptoPP::SHA3_256*)handle;
-
+        auto* pEngine = (CryptoPP::SHA3_256*)handle;
         pEngine->Restart();
     }
     void querySHA512Flush(SHA512_HANDLE& handle) {
-        CryptoPP::SHA3_256*
-            pEngine = (CryptoPP::SHA3_256*)handle;
-
+        auto* pEngine = (CryptoPP::SHA3_256*)handle;
         pEngine->Restart();
     }
     
     // Encrypt, Decrypt functions.
     // basically, we use these functions for signing.
     void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn) {
-        CryptoPP::TrapdoorFunction* pEngine =
-            (CryptoPP::TrapdoorFunction*)handle;
+        auto* pEngine = (CryptoPP::TrapdoorFunction*)handle;
 
         CryptoPP::Integer Encrypted = pEngine->ApplyFunction
         (
@@ -203,15 +197,13 @@ namespace CoinBill
         oBuf << Encrypted;
     }
     void queryRSADecrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn) {
-        CryptoPP::TrapdoorFunctionInverse* pEngine =
-            (CryptoPP::TrapdoorFunctionInverse*)handle;
+        auto* pEngine = (CryptoPP::TrapdoorFunctionInverse*)handle;
 
         CryptoPP::Integer Round = pEngine->CalculateInverse
         (
             *RNG_Engine,
             CryptoPP::Integer((const uint8_t*)pIn, szIn, CryptoPP::Integer::UNSIGNED, CryptoPP::BIG_ENDIAN_ORDER)
         );
-
         Round.Encode((uint8_t*)pOut, Round.ByteCount());
     }
 }

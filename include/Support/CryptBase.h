@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <Support/CryptType.h>
-#include <Support/Basic.h>
 
 namespace CoinBill
 {
@@ -41,7 +40,8 @@ namespace CoinBill
     // RSA - 4098 Binding.
     inline void queryRSAEnginePub(RSAPUB_HANDLE& handle, short PubExp, RSA_t& Module);
     inline void queryRSAEnginePrv(RSAPRV_HANDLE& handle, short PubExp, RSA_t& Module, RSA_t& PrvKey);
-    inline void queryRSADelete(RSA_HANDLE& handle);
+    inline void queryRSADeletePub(RSA_HANDLE& handle);
+    inline void queryRSADeletePrv(RSA_HANDLE& handle);
     inline void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
     inline void queryRSADecrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
 

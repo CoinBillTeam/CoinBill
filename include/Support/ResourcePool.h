@@ -3,7 +3,7 @@
 
 #include <mutex>
 #include <list>
-#include <Support/Basic.h>
+#include <Support/BasicUtility.h>
 
 namespace CoinBill {
 
@@ -71,6 +71,7 @@ namespace CoinBill {
             // mutex lock guard for thread safe.
             std::lock_guard<std::mutex> mutex_gard(NodeMtx);
 
+            object->~object();
             NodeCur = offset(NodeCur, sizeof(Ty*));
             *NodeCur = object;
         }

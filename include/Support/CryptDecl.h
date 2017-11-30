@@ -6,15 +6,31 @@
 
 namespace CoinBill
 {
-    class SHAModuleDecl {
+    class NOVTABLE SHAModuleDecl {
+    protected:
         // Hash function binding engine
         // the sha hash function will created when you initializing.
         CRYPT_HANDLE Engine;
+    public:
+        template <class Ty>
+        void Update(Ty In) {
+            querySHAUpdate(Engine, In);
+        }
+    };
+    class SHA256ModuleDecl : public SHAModuleDecl {
+    public:
+        void Flush();
+        void Verify(SHA256_t* pOut);
+    };
+    class SHA512ModuleDecl : public SHAModuleDecl {
+    public:
+        void Flush();
+        void Verify(SHA512_t* pOut);
     };
 
     // RSA Module Declares, this will handle RSA cryption globally.
     // Do not create RSAModuleDecl directly, we do handle by inherting it.
-    class RSAModuleDecl {
+    class NOVTABLE RSAModuleDecl {
         bool isSelfInitialized      = true;
         bool isPrivateEncryption    = true;
 
@@ -64,19 +80,20 @@ namespace CoinBill
         // isPrivateKeySecure will check its really secure to use. but slowest.
         // recommend isPrivateKeySafe or isPrivateKeySecure when you intiailizing key.
         // use isPrivateKeyValid when you just checking the key valid.
-        bool isPrivateKeyValid();
-        bool isPrivateKeySafe();
-        bool isPrivateKeySecure();
+        bool isModuleValid();
+        bool isModuleSafe();
+        bool isModuleSecure();
     };
 
-    template <class HashType, class HashModule>
     class SignatureModule : public RSAModuleDecl {
     public:
         // Try to create signature with hashed value.
-        bool tryCreateSignature(HashType* Hash, RSA_t* Sign);
+        bool tryCreateSignature(SHA256_t* Hash, RSA_t* Sign);
+        bool tryCreateSignature(SHA512_t* Hash, RSA_t* Sign);
 
         // Check created sign available and valid.
-        bool checkSignAvailable(HashType* Hash, RSA_t* Sign);
+        bool checkSignAvailable(SHA256_t* Hash, RSA_t* Sign);
+        bool checkSignAvailable(SHA512_t* Hash, RSA_t* Sign);
     };
 } // end namespace CoinBill
 

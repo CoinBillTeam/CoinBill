@@ -7,15 +7,19 @@
 
 #if defined(_MSC_VER)
 #define ALIGNED_(x) __declspec(align(x))
-#else
-#if defined(__GNUC__)
+#elif defined(__GNUC__)
 #define ALIGNED_(x) __attribute__ ((aligned(x)))
-#endif
 #endif
 
 #define ALIGN_V(ty, val)                        ALIGNED_(val)          ty
 #define ALIGN_V_TYP(ty, typ)                    ALIGNED_(sizeof(typ))  ty
 #define ALIGN_V_BIT(ty, bit)                    ALIGNED_(bit / 8)      ty
+
+#if defined(_MSC_VER)
+#define NOVTABLE __declspec(novtable)
+#elif
+#define NOVTABLE __attribute__ ((novtable))
+#endif
 
 namespace CoinBill
 {

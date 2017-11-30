@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <vector>
 
+#include <Support/BasicType.h>
+#include <Support/ResourcePool.h>
+
 namespace CoinBill
 {
     class BlockV1;
@@ -26,6 +29,7 @@ namespace CoinBill
         static uint64_t getNumNewDiff();
         static uint32_t getHashCycle();
         static BlockV1* getLastBlock();
+
     private:
         Wallet* hostWallet;
         Socket* hostSocket;

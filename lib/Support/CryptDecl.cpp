@@ -31,10 +31,13 @@ namespace CoinBill
         if (isSelfInitialized) {
             // Dispose RSA Object.
             disposeRSA(Mod);
-            disposeRSA(Prv);
 
-            // Dispose RSA Engine.
-            queryRSADelete(Engine);
+            if (Prv) {
+                disposeRSA(Prv);
+                queryRSADeletePrv(Engine);
+            } else {
+                queryRSADeletePub(Engine);
+            }
         }
         disposeRSA(Rnd);
     }
@@ -65,13 +68,44 @@ namespace CoinBill
 
     // TODO :
     //  Key check isn't implemented yet.
-    bool RSAModuleDecl::isPrivateKeyValid() {
+    bool RSAModuleDecl::isModuleValid() {
         return true;
     }
-    bool RSAModuleDecl::isPrivateKeySafe() {
+    bool RSAModuleDecl::isModuleSafe() {
         return true;
     }
-    bool RSAModuleDecl::isPrivateKeySecure() {
+    bool RSAModuleDecl::isModuleSecure() {
         return true;
+    }
+
+    bool SignatureModule::tryCreateSignature(SHA256_t* Hash, RSA_t* Sign) {
+        queryRSAEncrypt(Engine, Sign, Hash, sizeof(SHA256_t));
+        return true;
+    }
+    bool SignatureModule::tryCreateSignature(SHA512_t* Hash, RSA_t* Sign) {
+        queryRSAEncrypt(Engine, Sign, Hash, sizeof(SHA512_t));
+        return true;
+    }
+    bool SignatureModule::checkSignAvailable(SHA256_t* Hash, RSA_t* Sign) {
+        SHA256_t tempHash = 0;
+        queryRSADecrypt(Engine, &tempHash, Sign, sizeof(SHA256_t));
+        return isSHA256HashEqual(tempHash, *Hash);
+    }
+    bool SignatureModule::checkSignAvailable(SHA512_t* Hash, RSA_t* Sign) {
+        SHA512_t tempHash = 0;
+        queryRSADecrypt(Engine, &tempHash, Sign, sizeof(SHA512_t));
+        return isSHA512HashEqual(tempHash, *Hash);
+    }
+    void SHA256ModuleDecl::Flush() {
+        querySHA256Flush(Engine);
+    }
+    void SHA256ModuleDecl::Verify(SHA256_t * pOut) {
+        querySHA256Verify(Engine, *pOut);
+    }
+    void SHA512ModuleDecl::Flush() {
+        querySHA512Flush(Engine);
+    }
+    void SHA512ModuleDecl::Verify(SHA512_t * pOut) {
+        querySHA512Verify(Engine, *pOut);
     }
 }

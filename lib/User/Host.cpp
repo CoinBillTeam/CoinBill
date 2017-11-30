@@ -29,6 +29,4 @@ namespace CoinBill
         return nullptr;
     }
 
-
-    // Host Implements.
 }
