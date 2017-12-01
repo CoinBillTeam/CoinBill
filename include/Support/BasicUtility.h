@@ -23,9 +23,6 @@
 
 namespace CoinBill
 {
-    template <class Type> constexpr inline void* offset(Type* value, const int&& index) {
-        return (void*)((size_t)(value) + index);
-    }
     template <class Type> inline void* offset(Type* value, int index) {
         return (void*)((size_t)(value) + index);
     }

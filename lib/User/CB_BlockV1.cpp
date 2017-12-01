@@ -1,6 +1,6 @@
 #include <Support/CryptDecl.h>
 #include <Support/CLILogger.h>
-#include <User\CB_BlockV1.h>
+#include <User/CB_BlockV1.h>
 
 #include <random>
 #include <limits>
@@ -15,7 +15,7 @@ namespace CoinBill {
         nCount          = Host::getLastBlock()->nCount + 1;
         nNonce          = 0;
 
-        hashPrevBlock   = Host::getLastBlock()->hashBlock;
+        hashPrevBlock   = 0;
         hashTXRoot      = nullptr; // not implemented yet.
         hashAuther      = nullptr; // not implemented yet.
 

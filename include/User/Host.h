@@ -6,6 +6,7 @@
 
 #include <Support/BasicType.h>
 #include <Support/ResourcePool.h>
+#include <User/CB_BlockV1.h>
 
 namespace CoinBill
 {
@@ -35,7 +36,7 @@ namespace CoinBill
     };
 
 
-    Host* createHost(Wallet* wallet);
+    // Host* createHost(Wallet* wallet);
 }
 
 #endif // COINBILL_USER_HOST

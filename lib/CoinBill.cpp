@@ -1,5 +1,6 @@
 #include <Support/CLILogger.h>
 #include <Support/CryptBase.h>
+#include <Support/CryptDecl.h>
 #include <Network/SocketFuncBinding.h>
 #include <Network/Socket.h>
 
@@ -32,6 +33,8 @@ int main(int args, char* argc[], char* argv[])
     InitCryption();
     LogInf() << "Initialized cryption algorithms."              << std::endl;
 
+
+    RSAModuleDecl d;
 
     return 0;
 }

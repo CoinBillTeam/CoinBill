@@ -9,6 +9,8 @@
 #include <immintrin.h>
 #endif
 
+#pragma warning(disable:4091)
+
 namespace CoinBill
 {
     // TODO : Maybe we can handle those types more gentely... those are not really good implements.
@@ -125,8 +127,6 @@ namespace CoinBill
         uint16_t* toUint16() { return toType<uint16_t>(); }
         uint32_t* toUint32() { return toType<uint32_t>(); }
         uint64_t* toUint64() { return toType<uint64_t>(); }
-
-        static const type_digit = size * sizeof(BaseTy) * 8;
     };
 
     // basic type defines.

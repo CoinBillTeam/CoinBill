@@ -62,7 +62,7 @@ namespace CoinBill {
                 NodeCur = &NodeLst[i];
             }
             Ty* newMem = *NodeCur;
-            NodeCur = offset(NodeCur, -sizeof(Ty*));
+            NodeCur = (Ty**)offset(NodeCur, -sizeof(Ty*));
 
             return newMem;
         }
@@ -71,8 +71,8 @@ namespace CoinBill {
             // mutex lock guard for thread safe.
             std::lock_guard<std::mutex> mutex_gard(NodeMtx);
 
-            object->~object();
-            NodeCur = offset(NodeCur, sizeof(Ty*));
+            object->~Ty();
+            NodeCur = (Ty**)offset(NodeCur, sizeof(Ty*));
             *NodeCur = object;
         }
     }; 

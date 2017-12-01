@@ -56,10 +56,10 @@ namespace CoinBill
         explicit RSAModuleDecl(CRYPT_HANDLE cEngine, RSA_t* Module);
         explicit RSAModuleDecl(CRYPT_HANDLE cEngine, RSA_t* Module, RSA_t* Key);
 
-        // The destructure will dispose everything that we used on MemPool.
-        virtual ~RSAModuleDecl();
     public:
         RSAModuleDecl();
+        // The destructure will dispose everything that we used on MemPool.
+        virtual ~RSAModuleDecl();
 
         bool isInitialized() const;
 
