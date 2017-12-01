@@ -9,8 +9,8 @@
 
 namespace CoinBill
 {
-    class BlockV1;
-    class Wallet;
+    class CB_BlockV1;
+    class CB_Wallet;
     class Socket;
 
     class Host
@@ -27,11 +27,10 @@ namespace CoinBill
         static uint64_t getHostVersion();
         static uint64_t getHostTime();
         static uint64_t getNumNewDiff();
-        static uint32_t getHashCycle();
-        static BlockV1* getLastBlock();
+        static CB_BlockHeadV1* getLastBlock();
 
     private:
-        Wallet* hostWallet;
+        CB_Wallet* hostWallet;
         Socket* hostSocket;
     };
 

@@ -42,6 +42,18 @@ namespace CoinBill
         disposeRSA(Rnd);
     }
 
+    RSAModuleDecl::RSAModuleDecl() : 
+        Mod(createRSA()),
+        Prv(createRSA()),
+        Rnd(createRSA())
+    {
+        queryRSAEnginePrv(Engine, 3, *Prv, *Mod);
+    }
+
+    bool RSAModuleDecl::isInitialized() const {
+        return Mod == nullptr;
+    }
+
     // We are going to check it that is private encryption.
     // returning false when its public encryption.
     bool RSAModuleDecl::hasPrvRoundHint() {
@@ -76,6 +88,10 @@ namespace CoinBill
     }
     bool RSAModuleDecl::isModuleSecure() {
         return true;
+    }
+
+    void RSAModuleDecl::InitNewKey() {
+        queryRSACreateKey(Engine, Prv, Mod);
     }
 
     bool SignatureModule::tryCreateSignature(SHA256_t* Hash, RSA_t* Sign) {

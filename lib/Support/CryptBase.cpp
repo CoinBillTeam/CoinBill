@@ -206,4 +206,16 @@ namespace CoinBill
         );
         Round.Encode((uint8_t*)pOut, Round.ByteCount());
     }
+
+    void queryRSACreateKey(RSA_HANDLE& handle, RSA_t* Prv, RSA_t* Mod) {
+        auto* pEngine = (CryptoPP::InvertibleRSAFunction*)handle;
+
+        pEngine->GenerateRandomWithKeySize(*RNG_Engine, sizeof(RSA_t) * 8);
+
+        std::stringstream prvBuf((char*)Prv);
+        std::stringstream modBuf((char*)Mod);
+
+        prvBuf << pEngine->GetPrivateExponent();
+        modBuf << pEngine->GetModulus();
+    }
 }

@@ -12,7 +12,10 @@ using namespace CoinBill;
 int main(int args, char* argc[], char* argv[])
 {
     LogInf() << "CoinBill Core Client"                          << std::endl;
-    LogInf() << "Host Version : " << Host::getHostVersion()     << std::endl;
+    LogInf() << "Host Info : "                                  << std::endl;
+    LogInf() << "   - Version : " << Host::getHostVersion()     << std::endl;
+    LogInf() << "   - Build   : " << __DATE__ << " " << __TIME__<< std::endl;
+
     LogInf() << "Starting Up Program Instance...."              << std::endl;
 
     // Initialize socket.

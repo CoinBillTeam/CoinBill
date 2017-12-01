@@ -113,7 +113,7 @@ namespace CoinBill
         }
         
         // default type constructor / distructor.
-        CryptType() = default;
+        CryptType() { ZeroFill(); }
         ~CryptType() = default;
 
         uint8_t* toUint8(unsigned int& _size) { return toType<uint8_t>(_size); }
@@ -129,15 +129,27 @@ namespace CoinBill
         static const type_digit = size * sizeof(BaseTy) * 8;
     };
 
-    typedef CryptType<2, uint64_t>                                  uint128_t;
-    typedef CryptType<4, uint64_t>                                  uint256_t;
-    typedef CryptType<5, uint64_t>                                  uint320_t;
-    typedef CryptType<6, uint64_t>                                  uint384_t;
-    typedef CryptType<7, uint64_t>                                  uint448_t;
-    typedef CryptType<8, uint64_t>                                  uint512_t;
-    typedef CryptType<16, uint64_t>                                 uint1024_t;
-    typedef CryptType<32, uint64_t>                                 uint2048_t;
-    typedef CryptType<64, uint64_t>                                 uint4096_t;
+    // basic type defines.
+    // explicitly instantiated template to reduce compile time.
+    // this will help you not to generate same code from another object.
+    typedef typename CryptType<2, uint64_t> uint128_t;
+    extern uint128_t;
+    typedef typename CryptType<4, uint64_t> uint256_t;
+    extern uint256_t;
+    typedef typename CryptType<5, uint64_t> uint320_t;
+    extern uint320_t;
+    typedef typename CryptType<6, uint64_t> uint384_t;
+    extern uint384_t;
+    typedef typename CryptType<7, uint64_t> uint448_t;
+    extern uint448_t;
+    typedef typename CryptType<8, uint64_t> uint512_t;
+    extern uint512_t;
+    typedef typename CryptType<16, uint64_t> uint1024_t;
+    extern uint1024_t;
+    typedef typename CryptType<32, uint64_t> uint2048_t;
+    extern uint2048_t;
+    typedef typename CryptType<64, uint64_t> uint4096_t;
+    extern uint4096_t;
 
     template <unsigned int size, class BaseTy, BaseTy maxSize>
     inline bool CryptType<size, BaseTy, maxSize>::isEmpty() {

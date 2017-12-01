@@ -44,6 +44,7 @@ namespace CoinBill
     inline void queryRSADeletePrv(RSA_HANDLE& handle);
     inline void queryRSAEncrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
     inline void queryRSADecrypt(RSA_HANDLE& handle, void* pOut, void* pIn, size_t szIn);
+    inline void queryRSACreateKey(RSA_HANDLE& handle, RSA_t* Prv, RSA_t* Mod);
 
     // SHA-3 256 Hash Binding.
     //

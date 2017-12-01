@@ -59,6 +59,10 @@ namespace CoinBill
         // The destructure will dispose everything that we used on MemPool.
         virtual ~RSAModuleDecl();
     public:
+        RSAModuleDecl();
+
+        bool isInitialized() const;
+
         // checking that this module declare has private rounded hint.
         // the rounded hint will help cryption job much faster.
         // this is really useful when you are going to decrypt with private as multiple times.
@@ -83,6 +87,10 @@ namespace CoinBill
         bool isModuleValid();
         bool isModuleSafe();
         bool isModuleSecure();
+
+        // Initialize new key.
+        // create a new key from random device.
+        void InitNewKey();
     };
 
     class SignatureModule : public RSAModuleDecl {
