@@ -112,11 +112,25 @@ namespace CoinBill
         queryRSADecrypt(Engine, &tempHash, Sign, sizeof(SHA512_t));
         return isSHA512HashEqual(tempHash, *Hash);
     }
+
+    SHA256ModuleDecl::SHA256ModuleDecl() {
+        querySHA256Engine(Engine);
+    }
+    SHA256ModuleDecl::~SHA256ModuleDecl() {
+        querySHADelete(Engine);
+    }
     void SHA256ModuleDecl::Flush() {
         querySHAFlush(Engine);
     }
     void SHA256ModuleDecl::Verify(SHA256_t * pOut) {
         querySHA256Verify(Engine, *pOut);
+    }
+
+    SHA512ModuleDecl::SHA512ModuleDecl() {
+        querySHA512Engine(Engine);
+    }
+    SHA512ModuleDecl::~SHA512ModuleDecl() {
+        querySHADelete(Engine);
     }
     void SHA512ModuleDecl::Flush() {
         querySHAFlush(Engine);

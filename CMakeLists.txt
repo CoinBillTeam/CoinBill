@@ -75,7 +75,7 @@ add_subdirectory(${COINBILL_LIB_DIR}/User/)
 
 add_executable(CoinBillExec ${COINBILL_LIB_DIR}/CoinBill.cpp)
 target_link_libraries(CoinBillExec
-    CoinBillNetwork 
-    CoinBillSupport 
+    CoinBillNetwork
+    CoinBillSupport
     CoinBillUser
     ${COINBILL_TARGET_LIBRARIES})

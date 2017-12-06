@@ -27,10 +27,11 @@ namespace CoinBill
         typedef BIType<bits> MTy;
 
     public:
-        static constexpr size_t u8_sz = bits / sizeof(uint8_t);
-        static constexpr size_t u16_sz = bits / sizeof(uint16_t);
-        static constexpr size_t u32_sz = bits / sizeof(uint32_t);
-        static constexpr size_t u64_sz = bits / sizeof(uint64_t);
+        static constexpr size_t in_bytes    = bits / 8;
+        static constexpr size_t u8_sz       = in_bytes / sizeof(uint8_t);
+        static constexpr size_t u16_sz      = in_bytes / sizeof(uint16_t);
+        static constexpr size_t u32_sz      = in_bytes / sizeof(uint32_t);
+        static constexpr size_t u64_sz      = in_bytes / sizeof(uint64_t);
 
         union { 
             uint8_t u8[u8_sz];

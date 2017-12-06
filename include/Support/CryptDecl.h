@@ -12,6 +12,9 @@ namespace CoinBill
         // the sha hash function will created when you initializing.
         CRYPT_HANDLE Engine;
     public:
+        void Update(void* data, size_t size) {
+            querySHAUpdate(Engine, data, size);
+        }
         template <class Ty>
         void Update(Ty In) {
             querySHAUpdate(Engine, In);
@@ -19,11 +22,17 @@ namespace CoinBill
     };
     class SHA256ModuleDecl : public SHAModuleDecl {
     public:
+        SHA256ModuleDecl();
+        ~SHA256ModuleDecl();
+    
         void Flush();
         void Verify(SHA256_t* pOut);
     };
     class SHA512ModuleDecl : public SHAModuleDecl {
     public:
+        SHA512ModuleDecl();
+        ~SHA512ModuleDecl();
+
         void Flush();
         void Verify(SHA512_t* pOut);
     };

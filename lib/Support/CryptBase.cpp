@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include <botan/sha3.h>
+#include <botan/rsa.h>
 
 namespace CoinBill
 {                   
@@ -15,9 +16,7 @@ namespace CoinBill
     ResourcePool<SHA512_t>                          SHA512_MemPool;
     ResourcePool<RSA_t>                             RSA_MemPool;
 
-    ResourcePool<Botan::SHA_3_256>                  SHA256Module_Pool;
-    ResourcePool<Botan::SHA_3_384>                  SHA384Module_Pool;
-    ResourcePool<Botan::SHA_3_512>                  SHA512Module_Pool;
+    ResourcePool<Botan::SHA_3>                      SHAModule_Pool;
 
     // Mananged key, hash object allocators.
     // we do allocate key, hash holder from MemPool class for faster allocation.
@@ -49,12 +48,13 @@ namespace CoinBill
     //
     // This isn't a SHA256 object itself, its engine that we can compute cryption.
     void querySHA256Engine(SHA256_HANDLE& handle) {
-        handle = (SHA256_HANDLE)(new (SHA256Module_Pool) Botan::SHA_3_256());
+        handle = (SHA256_HANDLE)(new (SHAModule_Pool) Botan::SHA_3_256());
     }
     void querySHA512Engine(SHA512_HANDLE& handle) {
-        handle = (SHA512_HANDLE)(new (SHA512Module_Pool) Botan::SHA_3_512());
+        handle = (SHA512_HANDLE)(new (SHAModule_Pool) Botan::SHA_3_512());
     }
     void queryRSAEnginePub(RSAPUB_HANDLE& handle, short PubExp, RSA_t& Module) {
+
     }
     void queryRSAEnginePrv(RSAPRV_HANDLE& handle, short PubExp, RSA_t& Module, RSA_t& PrvKey) {
     }
@@ -67,6 +67,7 @@ namespace CoinBill
     void querySHAUpdate(CRYPT_HANDLE& handle, void* pIn, size_t szIn) {
         auto* Module = (Botan::HashFunction*)(handle);
         Module->update((uint8_t*)pIn, szIn);
+        printf("%d", Module->hash_block_size());
     }
 
     // finalize crypt instance.
@@ -84,13 +85,9 @@ namespace CoinBill
     // we distruct the instance and recollect into MemPool.
     // 
     // we don't really recommend if you are reusing a object, use flush instead of this.
-    void querySHA256Delete(SHA256_HANDLE& handle) {
-        auto* Module = (Botan::SHA_3_256*)(handle);
-        operator delete(Module, SHA256Module_Pool);
-    }
-    void querySHA512Delete(SHA512_HANDLE& handle) {
-        auto* Module = (Botan::SHA_3_512*)(handle);
-        operator delete(Module, SHA512Module_Pool);
+    void querySHADelete(CRYPT_HANDLE& handle) {
+        auto* Module = (Botan::SHA_3*)(handle);
+        operator delete(Module, SHAModule_Pool);
     }
     void queryRSADeletePub(RSA_HANDLE& handle) {
     }

@@ -50,7 +50,7 @@ namespace CoinBill {
                 }
 
                 // Allocate new pool.
-                Ty* newPool = new Ty[szRsvMem];
+                Ty* newPool = (Ty*)operator new(sizeof(Ty) * szRsvMem);
                 Pools.push_back(newPool);
 
                 // Initialize pool mems on list.
@@ -59,7 +59,7 @@ namespace CoinBill {
                     NodeLst[i] = &newPool[i];
                 }
                 // set current node.
-                NodeCur = &NodeLst[i];
+                NodeCur = &(NodeLst[i - 1]);
             }
             Ty* newMem = *NodeCur;
             NodeCur = (Ty**)offset(NodeCur, -sizeof(Ty*));

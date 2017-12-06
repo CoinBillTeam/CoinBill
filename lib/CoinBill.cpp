@@ -33,8 +33,5 @@ int main(int args, char* argc[], char* argv[])
     InitCryption();
     LogInf() << "Initialized cryption algorithms."              << std::endl;
 
-
-    RSAModuleDecl d;
-
     return 0;
 }
