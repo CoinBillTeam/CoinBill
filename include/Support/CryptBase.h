@@ -51,17 +51,17 @@ namespace CoinBill
     inline void querySHA256Engine(SHA256_HANDLE& handle);
     inline void querySHA256Verify(SHA256_HANDLE& handle, SHA256_t& out);
     inline void querySHA256Delete(SHA256_HANDLE& handle);
-    inline void querySHA256Flush(SHA256_HANDLE& handle);
 
     // SHA-3 512 Hash Binding.
     //
     inline void querySHA512Engine(SHA512_HANDLE& handle);
     inline void querySHA512Verify(SHA512_HANDLE& handle, SHA512_t& out);
     inline void querySHA512Delete(SHA512_HANDLE& handle);
-    inline void querySHA512Flush(SHA512_HANDLE& handle);
+    
 
     // Update Function
     //
+    inline void querySHAFlush(CRYPT_HANDLE& handle);
     inline void querySHAUpdate(CRYPT_HANDLE& handle, void* pIn, size_t szIn);
 
     template <class Ty>

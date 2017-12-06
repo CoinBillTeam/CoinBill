@@ -113,13 +113,13 @@ namespace CoinBill
         return isSHA512HashEqual(tempHash, *Hash);
     }
     void SHA256ModuleDecl::Flush() {
-        querySHA256Flush(Engine);
+        querySHAFlush(Engine);
     }
     void SHA256ModuleDecl::Verify(SHA256_t * pOut) {
         querySHA256Verify(Engine, *pOut);
     }
     void SHA512ModuleDecl::Flush() {
-        querySHA512Flush(Engine);
+        querySHAFlush(Engine);
     }
     void SHA512ModuleDecl::Verify(SHA512_t * pOut) {
         querySHA512Verify(Engine, *pOut);

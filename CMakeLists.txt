@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
 
-# Coinbill project, we are using C/C++.
 project(CoinBill C CXX)
 
-# We are using OpenSSL for cryption, Boost for socket.
-find_package(CryptoPP   REQUIRED)
-find_package(Boost      COMPONENTS system)
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS system)
 
-# Initialize default directories.
 set(COINBILL_TOP_DIR ${CMAKE_SOURCE_DIR})
 set(COINBILL_LIB_DIR ${COINBILL_TOP_DIR}/lib/)
 set(COINBILL_INC_DIR ${COINBILL_TOP_DIR}/include/)
@@ -16,12 +13,10 @@ set(COINBILL_CMAKE_DIR ${COINBILL_TOP_DIR}/cmake/)
 
 include(${COINBILL_CMAKE_DIR}/CoinBill-Lib.cmake)
 
-# Initialize output directories.
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${COINBILL_OUT_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${COINBILL_OUT_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${COINBILL_OUT_DIR}/bin)
 
-# Target type defines.
 if(WIN32)
     list(APPEND COINBILL_TARGET_DEFINES -DCOINBILL_WINDOWS)
 elseif(APPLE)
@@ -31,9 +26,7 @@ elseif(UNIX)
 endif()
 
 include_directories(${COINBILL_INC_DIR})
-list(APPEND COINBILL_TARGET_LIBRARIES cryptopp-static)
 
-# Boost defines.
 if(Boost_FOUND)
     option(USE_BOOST_ASIO "Use socket library for boost asio." TRUE)
     if(USE_BOOST_ASIO)
@@ -51,13 +44,35 @@ if(USE_AVX2_INSTRUCTIONS)
     list(APPEND COINBILL_TARGET_DEFINES -DCOINBILL_USE_AVX2)
 endif()
 
-# Add and initialize subdirectories.
+set(BOTAN_ROOT_DIRECTORY "C:/botan" CACHE STRING "Botan Library Root Directory")
+set(BOTAN_LIB_DIR ${BOTAN_ROOT_DIRECTORY}/lib/)
+set(BOTAN_INC_DIR ${BOTAN_ROOT_DIRECTORY}/include/botan-2)
+
+if((NOT EXISTS ${BOTAN_LIB_DIR}) OR (NOT EXISTS ${BOTAN_INC_DIR}))
+    message(STATUS ${BOTAN_LIB_DIR})
+    message(STATUS ${BOTAN_INC_DIR})
+    message(FATAL_ERROR "Could not found Botan library")
+endif()
+
+find_library(Botan
+    NAMES botan
+    PATHS ${BOTAN_ROOT_DIRECTORY}/lib
+)
+
+message(STATUS "Found Botan library")
+message(STATUS "  - ${Botan}")
+message(STATUS "  - ${BOTAN_LIB_DIR}")
+message(STATUS "  - ${BOTAN_INC_DIR}")
+
+list(APPEND COINBILL_TARGET_LIBRARIES       ${Botan})
+list(APPEND COINBILL_TARGET_LIBRARY_DIR     ${BOTAN_LIB_DIR})
+include_directories(${BOTAN_INC_DIR})
+
 add_definitions(${COINBILL_TARGET_DEFINES})
 add_subdirectory(${COINBILL_LIB_DIR}/Network/)
 add_subdirectory(${COINBILL_LIB_DIR}/Support/)
 add_subdirectory(${COINBILL_LIB_DIR}/User/)
 
-# Now compile it.
 add_executable(CoinBillExec ${COINBILL_LIB_DIR}/CoinBill.cpp)
 target_link_libraries(CoinBillExec
     CoinBillNetwork 

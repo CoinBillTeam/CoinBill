@@ -1,300 +1,96 @@
 #ifndef COINBILL_SUPPORT_BASIC_TYPE
 #define COINBILL_SUPPORT_BASIC_TYPE
 
-#include <type_traits>
-#include <stdint.h>
 #include <Support/BasicUtility.h>
 
+#include <type_traits>
+#include <stdint.h>
+#include <stdlib.h>
+
 #ifdef COINBILL_USE_AVX2
-#include <immintrin.h>
+#include <intrin.h>
 #endif
 
+// We are disabling 4091 warning.
+// extern will help you to make compile time lot more faster.
 #pragma warning(disable:4091)
+
+#define BIG_INTEGER_TYPE(size)                      \
+    typedef BIType<size> uint##size##_t;            \
+    extern typename uint##size##_t
 
 namespace CoinBill
 {
-    // TODO : Maybe we can handle those types more gentely... those are not really good implements.
-
-    template <unsigned int size, class BaseTy = unsigned char, BaseTy max_size = (BaseTy)(-1)>
-    class CryptType
-    {
-        // NOTE : DO NOT CREATE ANY VIRTUAL METHODS, OR ANY OTHER VARIABLES.
-        //        THIS IS FOR STORING RAW BIG INT VARIABLES.
-    protected:
-        using MTy = CryptType<size, BaseTy>;
-        BaseTy data[size];
-
-        void ZeroFill();
-
-        void increasePos(unsigned int index, BaseTy val) {
-            // If overflow.
-            if (data[index] < max_size - val) {
-                increasePos(index + 1, 1);
-                data[index] = max_size - (val + data[index]);
-            }
-            else
-                data[index] += val;
-        }
-        void decreasePos(unsigned int index, BaseTy val) {
-            // If underflow.
-            if (data[index] < val) {
-                decreasePos(index + 1, 1);
-                data[index] = max_size - (val - data[index]);
-            }
-            else
-                data[index] -= val;
-        }
+    // BasicType for creating custom bit integer type.
+    template <uint64_t bits>
+    class BIType {
+        typedef BIType<bits> MTy;
 
     public:
-        inline friend bool operator==(const MTy& LHS, const MTy& RHS) { return iterate_cmp<BaseTy, size>((void*)LHS.data, (void*)RHS.data) == 0; }
-        inline friend bool operator!=(const MTy& LHS, const MTy& RHS) { return iterate_cmp<BaseTy, size>((void*)LHS.data, (void*)RHS.data) != 0; }
-        inline friend bool operator< (const MTy& LHS, const MTy& RHS) { return iterate_cmp<BaseTy, size>((void*)LHS.data, (void*)RHS.data) <  0; }
-        inline friend bool operator<=(const MTy& LHS, const MTy& RHS) { return iterate_cmp<BaseTy, size>((void*)LHS.data, (void*)RHS.data) <= 0; }
-        inline friend bool operator> (const MTy& LHS, const MTy& RHS) { return iterate_cmp<BaseTy, size>((void*)LHS.data, (void*)RHS.data) >  0; }
-        inline friend bool operator>=(const MTy& LHS, const MTy& RHS) { return iterate_cmp<BaseTy, size>((void*)LHS.data, (void*)RHS.data) >= 0; }
-        inline operator BaseTy*() { return data; }
-        inline operator void*() { return data }
-        inline operator unsigned char*() { return toType<uint8_t>(); }
-        inline operator char*() { return toType<int8_t>(); }
+        static constexpr size_t u8_sz = bits / sizeof(uint8_t);
+        static constexpr size_t u16_sz = bits / sizeof(uint16_t);
+        static constexpr size_t u32_sz = bits / sizeof(uint32_t);
+        static constexpr size_t u64_sz = bits / sizeof(uint64_t);
 
-        template <class OTy> inline MTy& operator++(OTy) { 
-            increasePos(0, (BaseTy)1); 
-            return *this;
-        }
-        template <class OTy> inline MTy& operator+(OTy val) { 
-            increasePos(0, (BaseTy)val); 
-            return *this;
-        }
-        template <class OTy> inline MTy& operator--(OTy) { 
-            decreasePos(0, (BaseTy)1); 
-            return *this;
-        }
-        template <class OTy> inline MTy& operator-(OTy val) { 
-            decreasePos(0, (BaseTy)val); 
-            return *this;
-        }
+        union { 
+            uint8_t u8[u8_sz];
+            uint16_t u16[u16_sz];
+            uint32_t u32[u32_sz];
+            uint64_t u64[u64_sz];
+        };
 
-        template <class OTy> inline MTy& operator=(OTy val) {
-            ZeroFill();
-            OTy* v = toType<OTy>();
-            *v = (OTy)val;
-            return *this;
+        MTy& operator~();
+        MTy& operator&(MTy& LHS);
+        MTy& operator|(MTy& LHS);
+        MTy& operator^(MTy& LHS);
+        MTy& operator=(uint64_t value);
+
+        BIType(const uint64_t value) { 
+            *this = value; 
         }
-
-        template <class OTy>
-        friend OTy operator%(const MTy& LHS, const OTy RHS) {
-            return LHS.data[0] % RHS;
+        BIType(const BIType& init) : BIType(0) {
+            for (unsigned int i = 0; i < u64_sz; ++i)
+                u64[i] = init.u64[i];
         }
-
-        size_t getSize() { return sizeof(BaseTy) * size; }
-
-        template <class Ty, unsigned int szToTy = (sizeof(BaseTy) * size) / sizeof(Ty)>
-        constexpr Ty* toType(unsigned int& _size) {
-            _size = szToTy; return (Ty*)data;
-        }
-        template <class Ty>
-        constexpr Ty* toType() {
-            return (Ty*)data;
-        }
-
-        template <class Ty, size_t szTy>
-        void toArray(Ty (&Arr)[szTy]) {
-            static_assert(sizeof(Ty) * szTy > sizeof(BaseTy) * size);
-            Ty* Tmp = toType<Ty>();
-            for (unsigned int i = 0; i != szTy; ++i) {
-                Arr[i] = Tmp[i];
-            }
-        }
-
-        bool isEmpty();
-
-        // custom type constructor.
-        template<class Ty>
-        CryptType(const Ty Init) {
-            *this = Init;
-        }
-        
-        // default type constructor / distructor.
-        CryptType() { ZeroFill(); }
-        ~CryptType() = default;
-
-        uint8_t* toUint8(unsigned int& _size) { return toType<uint8_t>(_size); }
-        uint16_t* toUint16(unsigned int& _size) { return toType<uint16_t>(_size); }
-        uint32_t* toUint32(unsigned int& _size) { return toType<uint32_t>(_size); }
-        uint64_t* toUint64(unsigned int& _size) { return toType<uint64_t>(_size); }
-
-        uint8_t* toUint8() { return toType<uint8_t>(); }
-        uint16_t* toUint16() { return toType<uint16_t>(); }
-        uint32_t* toUint32() { return toType<uint32_t>(); }
-        uint64_t* toUint64() { return toType<uint64_t>(); }
+        BIType() = default;
     };
 
-    // basic type defines.
-    // explicitly instantiated template to reduce compile time.
-    // this will help you not to generate same code from another object.
-    typedef typename CryptType<2, uint64_t> uint128_t;
-    extern uint128_t;
-    typedef typename CryptType<4, uint64_t> uint256_t;
-    extern uint256_t;
-    typedef typename CryptType<5, uint64_t> uint320_t;
-    extern uint320_t;
-    typedef typename CryptType<6, uint64_t> uint384_t;
-    extern uint384_t;
-    typedef typename CryptType<7, uint64_t> uint448_t;
-    extern uint448_t;
-    typedef typename CryptType<8, uint64_t> uint512_t;
-    extern uint512_t;
-    typedef typename CryptType<16, uint64_t> uint1024_t;
-    extern uint1024_t;
-    typedef typename CryptType<32, uint64_t> uint2048_t;
-    extern uint2048_t;
-    typedef typename CryptType<64, uint64_t> uint4096_t;
-    extern uint4096_t;
-
-    template <unsigned int size, class BaseTy, BaseTy maxSize>
-    inline bool CryptType<size, BaseTy, maxSize>::isEmpty() {
-        for (unsigned int i = 0; i < size; ++i)
-            if (data[i] != 0)
-                return false;
-        return true;
+    template<uint64_t bits>
+    inline BIType<bits>& BIType<bits>::operator~() {
+        for (unsigned int i = 0; i < u64_sz; ++i)
+            u64[i] = ~u64[i];
+        return *this;
     }
-
-    template <unsigned int size, class BaseTy, BaseTy maxSize>
-    inline void CryptType<size, BaseTy, maxSize>::ZeroFill() {
-        for (unsigned int i = 0; i < size; ++i) data[i] = 0;
+    template<uint64_t bits>
+    inline BIType<bits>& BIType<bits>::operator&(MTy& LHS) {
+        for (unsigned int i = 0; i < u64_sz; ++i)
+            u64[i] = u64[i] & LHS.u64[i];
+        return *this;
     }
-
-#ifdef COINBILL_USE_AVX2
-    //      ----=========================================================================================================----
-    //          |        SIMD Implements With Template Specalization.          using SIMD for better performance.       |
-    //      ----=========================================================================================================----
-    //          | Targets                                                   |                                           |
-    //          |   - uint2048_t                                            | RSA2048_t                                 |
-    //          |   - uint256_t                                             | SHA256_t                                  |
-    //          |   - uint512_t                                             | SHA512_t                                  |
-    //      ----=========================================================================================================----
-    //          | bool isEmpty()                                                                                        |
-    //          |   - empty check for value.                                                                            |
-    //          |                                                                                                       |
-    //      ----=========================================================================================================----
-    //          | void ZeroFill()                                                                                       |
-    //          |   - set values empty.                                                                                 |
-    //          |                                                                                                       |
-    //      ----=========================================================================================================----
-    //          | Ty& operator=(Ty&)                                                                                    |
-    //          |   - copy values.                                                                                      |
-    //          |                                                                                                       |
-    //      ----=========================================================================================================----
-    //
-    //
-    template <>
-    inline bool uint256_t::isEmpty() {
-        // Load to register.
-        __m256i v = _mm256_load_si256(toType<__m256i>());
-
-        // check zero flag from simd register.
-        // _mm256_testz_si256(v, v) => 
-        //      (v[255:0] & v[255:0] == 0) return 1;
-        return !!_mm256_testz_si256(v, v);
+    template<uint64_t bits>
+    inline BIType<bits>& BIType<bits>::operator|(MTy& LHS) {
+        for (unsigned int i = 0; i < u64_sz; ++i)
+            u64[i] = u64[i] | LHS.u64[i];
+        return *this;
     }
-
-    template<>
-    inline bool uint512_t::isEmpty() {
-        // Load to register.
-        // We are not just going to use the loop
-        // Better just hardcode it...
-        __m256i* tmpV = toType<__m256i>();
-        __m256i v1 = _mm256_load_si256(&tmpV[0]);
-        __m256i v2 = _mm256_load_si256(&tmpV[1]);
-
-        // check zero flag from simd register.
-        __m256i result = _mm256_or_si256(v1, v2);
-        return !!_mm256_testz_si256(result, result);
-    }
-
-    template<>
-    inline bool uint4096_t::isEmpty() {
-        unsigned int indexV;
-        __m256i* tempV = toType<__m256i>(indexV);
-
-        // I think... loop unroll shoud be performed in here.
-        // maybe msvc will not unroll this. please check this code can unrollable.
-        int no_zf_stood = 0;
-        for (unsigned int i = 0; i < indexV; ++i) {
-            // Load and tests.
-            // We do not use branchs, non-branch loop is lot faster for this.
-            __m256i v = _mm256_load_si256(&tempV[i]);
-            no_zf_stood |= !_mm256_testz_si256(v, v);
-        }
-        return !no_zf_stood;
-    }
-
-    template<>
-    inline void uint256_t::ZeroFill() {
-        // Load to register.
-        __m256i* vo = toType<__m256i>();
-        // Store a zero value.
-        _mm256_store_si256(vo, _mm256_setzero_si256());
-    }
-
-    template<>
-    inline void uint512_t::ZeroFill() {
-        // Load to register.
-        __m256i* vo = toType<__m256i>();
-        const __m256i vz = _mm256_setzero_si256();
-        // Store a zero value.
-
-        _mm256_store_si256(&vo[0], vz);
-        _mm256_store_si256(&vo[1], vz);
-    }
-
-    template<>
-    inline void uint4096_t::ZeroFill() {
-        // Load to register.
-        unsigned int vi;
-        __m256i* vo = toType<__m256i>(vi);
-
-        const __m256i vz = _mm256_setzero_si256();
-        for (unsigned int i = 0; i < vi; ++i) {
-            _mm256_store_si256(&vo[i], vz);
-        }
-    }
-
-    template<>
-    template<>
-    inline uint256_t& uint256_t::operator=<uint256_t&>(uint256_t& val) {
-        __m256i* vl = toType<__m256i>();
-        __m256i* vr = val.toType<__m256i>();
-
-        _mm256_store_si256(vl, _mm256_load_si256(vr));
+    template<uint64_t bits>
+    inline BIType<bits>& BIType<bits>::operator^(MTy& LHS) {
+        for (unsigned int i = 0; i < u64_sz; ++i)
+            u64[i] = u64[i] ^ LHS.u64[i];
         return *this;
     }
 
-    template<>
-    template<>
-    inline uint512_t& uint512_t::operator=<uint512_t&>(uint512_t& val) {
-        __m256i* vl = toType<__m256i>();
-        __m256i* vr = val.toType<__m256i>();
-
-
-        _mm256_store_si256(&vl[0], _mm256_load_si256(&vr[0]));
-        _mm256_store_si256(&vl[1], _mm256_load_si256(&vr[1]));
+    template<uint64_t bits>
+    inline BIType<bits>& BIType<bits>::operator=(uint64_t value) {
+        *this = *this ^ *this; u64[1] = value;
         return *this;
     }
 
-    template<>
-    template<>
-    inline uint4096_t& uint4096_t::operator=<uint4096_t&>(uint4096_t& val) {
-        unsigned int vi;
-        __m256i* vl = toType<__m256i>(vi);
-        __m256i* vr = val.toType<__m256i>();
-
-        for (unsigned int i = 0; i < vi; ++i) {
-            _mm256_store_si256(&vl[i], _mm256_load_si256(&vr[i]));
-        }
-        return *this;
-    }
-#endif // COINBILL_USE_SIMD
+    // Big Integer Defines, Those types will be uintXXXX_t.
+    // XXXX is size of type.
+    BIG_INTEGER_TYPE(128);  BIG_INTEGER_TYPE(192);  BIG_INTEGER_TYPE(256);
+    BIG_INTEGER_TYPE(320);  BIG_INTEGER_TYPE(384);  BIG_INTEGER_TYPE(448);
+    BIG_INTEGER_TYPE(512);  BIG_INTEGER_TYPE(1024); BIG_INTEGER_TYPE(2048);
+    BIG_INTEGER_TYPE(3072); BIG_INTEGER_TYPE(4096); BIG_INTEGER_TYPE(8192);
 }
-
 #endif // COINBILL_SUPPORT_BASIC_TYPE
