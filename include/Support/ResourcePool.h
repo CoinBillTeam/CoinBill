@@ -10,7 +10,6 @@ namespace CoinBill {
     template <class Ty, unsigned int szRsvMem = 32, unsigned int szRsvList = 128>
     class ResourcePool {
         // Node Reserved Infomations.
-        std::mutex          NodeMtx;
         Ty**                NodeLst; // Actual Node List. (First of Node)
         Ty**                NodeCur; // Current Node Index.
         unsigned int        ListSize; // Node List Size. (Maximum)
@@ -30,9 +29,6 @@ namespace CoinBill {
         }
 
         Ty* create() {
-            // mutex lock guard for thread safe.
-            std::lock_guard<std::mutex> mutex_gard(NodeMtx);
-
             // Check that memory list is empty.
             if (NodeCur == NodeLst) {
                 // current node is first of node.
@@ -77,22 +73,4 @@ namespace CoinBill {
         }
     }; 
 }
-
-template <class Ty>
-void* operator new(size_t size, CoinBill::ResourcePool<Ty>& pool) {
-    return pool.create();
-}
-template <class Ty>
-void* operator new(size_t size, CoinBill::ResourcePool<Ty>* pool) {
-    return pool->create();
-}
-template <class Ty>
-void operator delete(void* ptr, CoinBill::ResourcePool<Ty>& pool) {
-    pool.distroy((Ty*)ptr);
-}
-template <class Ty>
-void operator delete(void* ptr, CoinBill::ResourcePool<Ty>* pool) {
-    pool->distroy((Ty*)ptr);
-}
-
 #endif // COINBILL_SUPPORT_MEMPOOL
