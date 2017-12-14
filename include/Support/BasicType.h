@@ -2,6 +2,7 @@
 #define COINBILL_SUPPORT_BASIC_TYPE
 
 #include <Support/BasicUtility.h>
+#include <Support/ResourcePool.h>
 
 #include <type_traits>
 #include <stdint.h>
@@ -25,6 +26,7 @@ namespace CoinBill
     template <uint64_t bits>
     class BIType {
         typedef BIType<bits> MTy;
+		static thread_local ResourcePool<MTy> Pool;
 
     public:
         static constexpr size_t in_bytes    = bits / 8;
@@ -32,6 +34,7 @@ namespace CoinBill
         static constexpr size_t u16_sz      = in_bytes / sizeof(uint16_t);
         static constexpr size_t u32_sz      = in_bytes / sizeof(uint32_t);
         static constexpr size_t u64_sz      = in_bytes / sizeof(uint64_t);
+		
 
         union { 
             uint8_t u8[u8_sz];
@@ -45,6 +48,9 @@ namespace CoinBill
         MTy& operator|(MTy& LHS);
         MTy& operator^(MTy& LHS);
         MTy& operator=(uint64_t value);
+		
+		bool operator==(MTy& LHS);
+		bool operator<=(MTy& LHS);
 
         BIType(const uint64_t value) { 
             *this = value; 
@@ -53,7 +59,14 @@ namespace CoinBill
             for (unsigned int i = 0; i < u64_sz; ++i)
                 u64[i] = init.u64[i];
         }
-        BIType() = default;
+		BIType() = default;
+
+		inline void* operator new(size_t size) {
+			return Pool.create();
+		}
+		inline void operator delete(void* object, size_t size) {
+			Pool.distroy((MTy*)object);
+		}
     };
 
     template<uint64_t bits>
@@ -86,6 +99,16 @@ namespace CoinBill
         *this = *this ^ *this; u64[1] = value;
         return *this;
     }
+
+	template<uint64_t bits>
+	inline bool BIType<bits>::operator==(MTy& RHS) {
+		return iterate_cmp<uint64_t>((void*)RHS.u64, (void*)u64, MTy::u64_sz) == 0;
+	}
+
+	template<uint64_t bits>
+	inline bool BIType<bits>::operator<=(MTy& RHS) {
+		return iterate_cmp<uint64_t>((void*)RHS.u64, (void*)u64, MTy::u64_sz) <= 0;
+	}
 
     // Big Integer Defines, Those types will be uintXXXX_t.
     // XXXX is size of type.

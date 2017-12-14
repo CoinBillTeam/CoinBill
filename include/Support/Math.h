@@ -46,7 +46,4 @@ namespace CoinBill {
 
         return Target;
     }
-
-
-
 }

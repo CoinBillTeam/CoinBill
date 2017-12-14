@@ -1,18 +1,15 @@
 #ifndef COINBILL_USER_CB_WALLET
 #define COINBILL_USER_CB_WALLET
 
-#include <Support/CryptType.h>
-#include <Support/CryptDecl.h>
+#include <Support/CryptModule.h>
 
 namespace CoinBill {
     class CB_Wallet {
-        double nBalance;
+        SHA256_t* hashMod;
 
     public:
-        RSA_t* Module;
+        RSA_t* Mod;
         RSA_t* Key;
-
-        SignatureModule SignEngine;
     };
 
     CB_Wallet* createCBWallet();

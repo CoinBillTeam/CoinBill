@@ -1,11 +1,11 @@
 #include <User/Host.h>
-#include <User/CB_BlockV1.h>
+#include <User/CoinBill/CB_Block.h>
 
 #include <ctime>
 
 CoinBill::SHA256_t Zero256V = 0;
 CoinBill::SHA512_t Zero512V = 0;
-CoinBill::CB_BlockHeadV1 GenesisBlock = {
+CoinBill::CB_BlockHead GenesisBlock = {
     1512021486              , // Time
     0                       , // Channel
     1                       , // Version
@@ -37,7 +37,7 @@ namespace CoinBill
         // We generate new difficulty every 1 hour.
         return 2 * 60;
     }
-    CB_BlockHeadV1* Host::getLastBlock() {
+    CB_BlockHead* Host::getLastBlock() {
         return &GenesisBlock;
     }
 }

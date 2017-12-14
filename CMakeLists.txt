@@ -48,18 +48,18 @@ set(BOTAN_ROOT_DIRECTORY "C:/botan" CACHE STRING "Botan Library Root Directory")
 set(BOTAN_LIB_DIR ${BOTAN_ROOT_DIRECTORY}/lib/)
 set(BOTAN_INC_DIR ${BOTAN_ROOT_DIRECTORY}/include/botan-2)
 
-if((NOT EXISTS ${BOTAN_LIB_DIR}) OR (NOT EXISTS ${BOTAN_INC_DIR}))
-    message(STATUS ${BOTAN_LIB_DIR})
-    message(STATUS ${BOTAN_INC_DIR})
-    message(FATAL_ERROR "Could not found Botan library")
-endif()
-
 find_library(Botan
     NAMES botan
     PATHS ${BOTAN_ROOT_DIRECTORY}/lib
 )
 
-message(STATUS "Found Botan library")
+if((NOT EXISTS ${BOTAN_LIB_DIR}) OR (NOT EXISTS ${BOTAN_INC_DIR}) OR (NOT EXISTS ${Botan}))
+    message(STATUS ${BOTAN_LIB_DIR})
+    message(STATUS ${BOTAN_INC_DIR})
+    message(FATAL_ERROR "CoinBill : Could not found Botan library")
+endif()
+
+message(STATUS "CoinBill : Found Botan library")
 message(STATUS "  - ${Botan}")
 message(STATUS "  - ${BOTAN_LIB_DIR}")
 message(STATUS "  - ${BOTAN_INC_DIR}")

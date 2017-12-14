@@ -26,6 +26,10 @@ namespace CoinBill {
     class ResourceSecureVH : public ResourceVH<Ty> {
         // Not implemented yet.
     public:
+
+        Ty* operator->() {
+
+        }
     };
 
     template <class Ty>
@@ -34,6 +38,9 @@ namespace CoinBill {
         bool isMapped;
 
     public:
+        Ty* operator->() {
+
+        }
     };
 }
 

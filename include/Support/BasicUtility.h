@@ -2,6 +2,7 @@
 #define COINBILL_SUPPORT_BASIC
 
 #include <iostream>
+#include <sstream>
 
 #define IF_FAILED(xv, y)                        if(!xv)                t
 #define IF_FAILED_RET(xv, y)                    if(!xv)                return y;
@@ -58,7 +59,7 @@ namespace CoinBill
     }
 
     // TODO : Use SIMD instructions for faster checks.
-    template <class Type, unsigned int cycle>
+    template <class Type, size_t cycle>
     inline long long iterate_cmp(void *LHS, void *RHS) {
         for (unsigned int i = 0; i < cycle; ++i)
             if (((Type*)LHS)[i] != ((Type*)RHS)[i]) 

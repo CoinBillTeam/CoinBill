@@ -6,11 +6,11 @@
 
 #include <Support/BasicType.h>
 #include <Support/ResourcePool.h>
-#include <User/CB_BlockV1.h>
+#include <User/CoinBill/CB_Block.h>
 
 namespace CoinBill
 {
-    class CB_BlockV1;
+    class CB_Block;
     class CB_Wallet;
     class Socket;
 
@@ -28,7 +28,7 @@ namespace CoinBill
         static uint64_t getHostVersion();
         static uint64_t getHostTime();
         static uint64_t getNumNewDiff();
-        static CB_BlockHeadV1* getLastBlock();
+        static CB_BlockHead* getLastBlock();
 
     private:
         CB_Wallet* hostWallet;
