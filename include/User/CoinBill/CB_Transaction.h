@@ -2,14 +2,31 @@
 #define COINBILL_USER_TRANSACTION_V1
 
 namespace CoinBill {
-    enum CB_TxV1Type {
-        SEND_BALANCE        = 0x01,
-        INIT_BALANCE        = 0x02,
-        RECV_BALANCE        = 0x03
+    enum CB_TransactionType {
+		ACCOUNT_REGISTER				= 0x01,
+        ACCOUNT_SEND_BALANCE			= 0x02,
+        ACCOUNT_INIT_BALANCE			= 0x03,
+		ACCOUNT_SET_INFO				= 0x04,
+		ACCOUNT_SET_SHORT_NAME			= 0x05,
+		ACCOUNT_NODIFY_WARNING			= 0x06,
+		ACCOUNT_BAN						= 0x07,
+		ACCOUNT_UNBAN					= 0x08,
+
+		TRANSACTION_BLOCK_PROOF			= 0x11,
+		TRANSACTION_PROOF				= 0x12,
+		TRANSACTION_REQ_DISCARD			= 0x13,
+
+		CONTRACT_CREATE					= 0x21,
+		CONTRACT_DISCARD				= 0x22,
+		CONTRACT_GIVE_OWNSHIP			= 0x23,
+		CONTRACT_DO_EXECUTE				= 0x24,
+		
+		BLOCK_CREATION_NODIFY_POW		= 0xEE,
+		BLOCK_CREATION_NODIFY_POS		= 0xEF
     };
 
-    class CB_TxV1 {
-
+    class CB_Transaction {
+		CB_TransactionType Kind;
     };
 }
 
