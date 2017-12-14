@@ -46,7 +46,7 @@ namespace CoinBill {
                 }
 
                 // Allocate new pool.
-                Ty* newPool = (Ty*)::operator new(sizeof(Ty) * szRsvMem);
+                Ty* newPool = (Ty*)::operator new(round_up<4096>(sizeof(Ty) * szRsvMem));
                 Pools.push_back(newPool);
 
                 // Initialize pool mems on list.

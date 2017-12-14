@@ -47,6 +47,7 @@ namespace CoinBill
         MTy& operator&(MTy& LHS);
         MTy& operator|(MTy& LHS);
         MTy& operator^(MTy& LHS);
+		MTy& operator=(MTy& RHS);
         MTy& operator=(uint64_t value);
 		
 		bool operator==(MTy& LHS);
@@ -55,12 +56,12 @@ namespace CoinBill
         BIType(const uint64_t value) { 
             *this = value; 
         }
-        BIType(const BIType& init) : BIType(0) {
-            for (unsigned int i = 0; i < u64_sz; ++i)
-                u64[i] = init.u64[i];
-        }
+        BIType(const BIType& init) : BIType(0) { }
 		BIType() = default;
 
+		// custom fast allocations.
+		// these are thread local, so you don't need to take care about syncronization.
+		// but remember, this will make a huge memory allocations by allocating pools.
 		inline void* operator new(size_t size) {
 			return Pool.create();
 		}
@@ -99,6 +100,13 @@ namespace CoinBill
         *this = *this ^ *this; u64[1] = value;
         return *this;
     }
+
+	template<uint64_t bits>
+	inline BIType<bits>& BIType<bits>::operator=(MTy& RHS) {
+		for (unsigned int i = 0; i < u64_sz; ++i)
+			u64[i] = RHS.u64[i];
+		return *this;
+	}
 
 	template<uint64_t bits>
 	inline bool BIType<bits>::operator==(MTy& RHS) {
