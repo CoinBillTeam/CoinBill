@@ -105,19 +105,19 @@ namespace CoinBill
 		}
 
 		bool CreateSign(RSA_t* pOutSign) {
-			for (unsigned int i = 0; i < Hashs.size(); ++i)
-				SignEngine->update((uint8_t*)Hashs[i], sizeof(HashTy));
+			*pOutSign = 0;
+
+			for (auto Hash : Hashs)
+				SignEngine->update((uint8_t*)Hash, sizeof(HashTy));
 
 			auto Out = SignEngine->sign(*RandEngine);
-			for (unsigned int i = 0; i != Out.size(); ++i) {
-				// The value can be overflow.
-				// this value is managed in pool as array, so it will be really unsafe.
-				// we are going to check the size every time when we are copying.
-				// remember the each iterator i is a 1 byte.
-				if (i >= sizeof(RSA_t))
-					return false;
-				((uint8_t*)pOutSign)[i] = Out[i];
-			}
+			// The value can be overflow.
+			// this value is managed in pool as array, so it will be really unsafe.
+			// we are going to check the size every time when we are copying.
+			if (Out.size() > sizeof(RSA_t))
+				return false;
+
+			std::copy(Out.begin(), Out.end(), pOutSign->u8);
 			return true;
 		}
 	};
@@ -164,8 +164,8 @@ namespace CoinBill
 		}
 
 		bool VerifySign(RSA_t* inSign) {
-			for (unsigned int i = 0; i < Hashs.size(); ++i)
-				VerfEngine->update((uint8_t*)Hashs[i], sizeof(HashTy));
+			for (auto Hash : Hashs)
+				VerfEngine->update((uint8_t*)Hash, sizeof(HashTy));
 			return VerfEngine->is_valid_signature(inSign, sizeof(RSA_t));
 		}
 	};
