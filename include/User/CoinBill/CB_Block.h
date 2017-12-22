@@ -10,7 +10,6 @@ namespace CoinBill {
 
     struct CB_BlockHead {
         uint64_t nTime;
-        uint32_t nChannel;
         uint32_t nVersion;
         uint32_t nBits;
         uint64_t nDifficult;

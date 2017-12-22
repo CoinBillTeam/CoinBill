@@ -1,5 +1,5 @@
-#ifndef COINBILL_USER_HASH
-#define COINBILL_USER_HASH
+#ifndef COINBILL_USER_CB_HASH
+#define COINBILL_USER_CB_HASH
 
 #include <Support/CryptModule.h>
 

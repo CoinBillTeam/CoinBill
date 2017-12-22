@@ -1,9 +1,8 @@
 #include <Support/CLILogger.h>
-
-#include <User/CoinBill/CB_Block.h>
 #include <Support/ResourceVH.h>
 
 #include <User/CoinBill/CB_Hash.h>
+#include <User/CoinBill/CB_Block.h>
 
 #include <random>
 #include <limits>
@@ -11,7 +10,6 @@
 namespace CoinBill {
     CB_Block::CB_Block() {
         nTime           = Host::getHostTime();
-        nChannel        = 0;
         nVersion        = Host::getHostVersion();
         nBits           = sizeof(SHA512_t) * 8;
         nDifficult      = Host::getLastBlock()->nDifficult;
@@ -22,7 +20,7 @@ namespace CoinBill {
         hashTXRoot      = nullptr; // not implemented yet.
         hashAuther      = nullptr; // not implemented yet.
 
-        if (nCount % Host::getNumNewDiff()) {
+        if (nCount % Host::getNumNewDiff() == 0) {
             // TODO : Need algorithm for new difficulty.
         }
     }
@@ -57,9 +55,7 @@ namespace CoinBill {
             LazyHashObjectInit();
 
         try {
-            // First encryption.
             hashMoudle->Update(nTime);
-            hashMoudle->Update(nChannel);
             hashMoudle->Update(nVersion);
             hashMoudle->Update(nBits);
             hashMoudle->Update(nDifficult);

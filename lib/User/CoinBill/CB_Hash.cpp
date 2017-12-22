@@ -1,6 +1,8 @@
-#include "User\CoinBill\CB_Hash.h"
+#include <User\CoinBill\CB_Hash.h>
 
 namespace CoinBill {
+	// Our common hash performes hash twice.
+
 	void CB_CommonHash_SHA256::Verify(SHA256_t* pOut) {
 		SHA256_t tmpHash;
 

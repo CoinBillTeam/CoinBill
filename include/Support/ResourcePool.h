@@ -18,9 +18,7 @@ namespace CoinBill {
         std::list<Ty*>      Pools;
 
     public:
-        ResourcePool() : NodeLst(nullptr), NodeCur(nullptr), ListSize(0) {
-
-        }
+        ResourcePool() : NodeLst(nullptr), NodeCur(nullptr), ListSize(0) { }
         ~ResourcePool() {
             delete NodeLst;
             for (Ty* pool : Pools) {
