@@ -115,7 +115,7 @@ namespace CoinBill
 				// we are going to check the size every time when we are copying.
 				// remember the each iterator i is a 1 byte.
 				if (i >= sizeof(RSA_t))
-					return false
+					return false;
 				((uint8_t*)pOutSign)[i] = Out[i];
 			}
 			return true;
