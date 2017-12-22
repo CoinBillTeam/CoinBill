@@ -62,9 +62,6 @@ namespace CoinBill {
         }
 
         void distroy(Ty* object) {
-            // mutex lock guard for thread safe.
-            std::lock_guard<std::mutex> mutex_gard(NodeMtx);
-
             object->~Ty();
             NodeCur = (Ty**)offset(NodeCur, sizeof(Ty*));
             *NodeCur = object;

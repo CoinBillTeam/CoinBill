@@ -12,8 +12,8 @@ CoinBill::CB_CommonHash_SHA512  globalHash512;
 namespace CoinBill {
 	CB_Wallet::CB_Wallet(RSA_t* account, RSA_t* key) : Account(account), Key(key) { }
 	CB_Wallet::~CB_Wallet() {
-		if(globalHash256 != nullptr) delete globalHash256;
-		if(globalHash512 != nullptr) delete globalHash512;
+		if(hashAccount256 != nullptr) delete hashAccount256;
+		if(hashAccount512 != nullptr) delete hashAccount512;
 	}
 
 	SHA256_t* CB_Wallet::LazyHashInit256() {

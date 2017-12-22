@@ -132,7 +132,7 @@ namespace CoinBill
 		}
 		~RSA_VERF_MODULE() {
 			delete RandEngine;
-			delete SignEngine;
+			delete VerfEngine;
 		}
 
 		void InsertHash(HashTy* Hash) {

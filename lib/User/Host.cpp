@@ -7,7 +7,6 @@ CoinBill::SHA256_t Zero256V = 0;
 CoinBill::SHA512_t Zero512V = 0;
 CoinBill::CB_BlockHead GenesisBlock = {
     1512021486              , // Time
-    0                       , // Channel
     1                       , // Version
     512                     , // Bits
     1                       , // Difficult
