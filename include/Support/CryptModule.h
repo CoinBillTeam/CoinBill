@@ -87,18 +87,24 @@ namespace CoinBill
 			delete SignEngine;
 		}
 
-		void InsertHash(HashTy* Hash) {
-			if(Hash != nullptr) 
-				Hashs.push_back(Hash);
+		bool InsertHash(HashTy* Hash) {
+			if ((Hashs.size() + 1) * sizeof(HashTy) > sizeof(RSA_t) || Hash == nullptr)
+				return false;
+
+			Hashs.push_back(Hash);
+			return true;
 		}
 
-		void RemoveHash(HashTy* Hash) {
+		bool RemoveHash(HashTy* Hash) {
 			for (auto Iter = Hashs.begin(); Iter != Hashs.end(); ++Iter)
-				if (*Iter == Hash)
+				if (*Iter == Hash) {
 					Hashs.erase(Iter);
+					return true;
+				}
+			return false;
 		}
 
-		size_t CreateSign(RSA_t* pOutSign) {
+		bool CreateSign(RSA_t* pOutSign) {
 			for (unsigned int i = 0; i < Hashs.size(); ++i)
 				SignEngine->update((uint8_t*)Hashs[i], sizeof(HashTy));
 
@@ -107,11 +113,12 @@ namespace CoinBill
 				// The value can be overflow.
 				// this value is managed in pool as array, so it will be really unsafe.
 				// we are going to check the size every time when we are copying.
+				// remember the each iterator i is a 1 byte.
 				if (i >= sizeof(RSA_t))
-					return Out.size() - sizeof(RSA_t);
+					return false
 				((uint8_t*)pOutSign)[i] = Out[i];
 			}
-			return 0;
+			return true;
 		}
 	};
 
@@ -135,15 +142,21 @@ namespace CoinBill
 			delete VerfEngine;
 		}
 
-		void InsertHash(HashTy* Hash) {
-			if (Hash != nullptr)
-				Hashs.push_back(Hash);
+		bool InsertHash(HashTy* Hash) {
+			if ((Hashs.size() + 1) * sizeof(HashTy) > sizeof(RSA_t) || Hash == nullptr)
+				return false;
+
+			Hashs.push_back(Hash);
+			return true;
 		}
 
-		void RemoveHash(HashTy* Hash) {
+		bool RemoveHash(HashTy* Hash) {
 			for (auto Iter = Hashs.begin(); Iter != Hashs.end(); ++Iter)
-				if (*Iter == Hash)
+				if (*Iter == Hash) {
 					Hashs.erase(Iter);
+					return true;
+				}
+			return false;
 		}
 
 		void RemoveHash() {

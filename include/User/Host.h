@@ -25,7 +25,7 @@ namespace CoinBill
         void notifyConnectedPeers();
         void ProcessQueues();
 
-        static uint64_t getHostVersion();
+        static uint32_t getHostVersion();
         static uint64_t getHostTime();
         static uint64_t getNumNewDiff();
         static CB_BlockHead* getLastBlock();

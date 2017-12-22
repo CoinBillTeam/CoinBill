@@ -2,6 +2,7 @@
 #include <User/CoinBill/CB_Block.h>
 
 #include <ctime>
+#include <unordered_map>
 
 CoinBill::SHA256_t Zero256V = 0;
 CoinBill::SHA512_t Zero512V = 0;
@@ -21,7 +22,7 @@ namespace CoinBill
 {
     // TODO_ALL : need to implements based on platform.
     //            we do only support MSVC for now.
-    uint64_t Host::getHostVersion() {
+    uint32_t Host::getHostVersion() {
         // TODO : CMake based versioning.
         return 1;
     }
