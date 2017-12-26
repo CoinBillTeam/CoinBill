@@ -60,9 +60,9 @@ if((NOT EXISTS ${BOTAN_LIB_DIR}) OR (NOT EXISTS ${BOTAN_INC_DIR}) OR (NOT EXISTS
 endif()
 
 message(STATUS "CoinBill : Found Botan library")
-message(STATUS "  - ${Botan}")
-message(STATUS "  - ${BOTAN_LIB_DIR}")
-message(STATUS "  - ${BOTAN_INC_DIR}")
+message(STATUS "  ${Botan}")
+message(STATUS "  ${BOTAN_LIB_DIR}")
+message(STATUS "  ${BOTAN_INC_DIR}")
 
 list(APPEND COINBILL_TARGET_LIBRARIES       ${Botan})
 list(APPEND COINBILL_TARGET_LIBRARY_DIR     ${BOTAN_LIB_DIR})

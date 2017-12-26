@@ -88,10 +88,8 @@ namespace CoinBill {
             uint8_t* chkBPad = offset(object, -16);
             uint8_t* chkFPad = offset(object, +16);
 
-            for (unsigned int i = 0; i < 16; ++i) {
-                if (chkBPad[i] != 0 || chkFPad[i] != 0)
-                    COINBILL_ASSERT(false);
-            }
+            for (unsigned int i = 0; i < 16; ++i)
+                COINBILL_ASSERT(chkBPad[i] == 0 && chkFPad[i] == 0);
 
             PTy::distory((STy*)chkBPad);
         }
