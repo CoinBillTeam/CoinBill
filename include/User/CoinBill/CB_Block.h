@@ -3,6 +3,7 @@
 
 #include <Support/BasicUtility.h>
 #include <Support/CryptModule.h>
+#include <Support/ResourceVH.h>
 
 namespace CoinBill {
     class CB_Wallet;
@@ -21,8 +22,9 @@ namespace CoinBill {
         SHA256_t* hashAuther;
     };
 
-    class NOVTABLE CB_Block : public CB_BlockHead {
-        SHA512_t* hashBlock;
+    class NOVTABLE CB_Block {
+		ResourceVHScope<CB_BlockHead>	headBlock;
+		ResourceVHScope<SHA512_t>		hashBlock;
 
         bool isHashModuleInitialized;
         bool isHashObjectInitialized;
@@ -41,10 +43,10 @@ namespace CoinBill {
         // Lazy object initializers.
         // We allocate objects when it is going to use.
         void LazyHashModuleInit();
-        void LazyHashObjectInit();
 
     public:
-        CB_Block();
+        CB_Block(std::string& filename);
+		CB_Block();
         virtual ~CB_Block();
 
         // update current hash of block.

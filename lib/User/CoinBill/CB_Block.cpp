@@ -1,5 +1,5 @@
 #include <Support/CLILogger.h>
-#include <Support/ResourceVH.h>
+
 
 #include <User/CoinBill/CB_Hash.h>
 #include <User/CoinBill/CB_Block.h>
@@ -8,25 +8,29 @@
 #include <limits>
 
 namespace CoinBill {
-    CB_Block::CB_Block() {
-        nTime           = Host::getHostTime();
-        nVersion        = Host::getHostVersion();
-        nBits           = sizeof(SHA512_t) * 8;
-        nDifficult      = Host::getLastBlock()->nDifficult;
-        nCount          = Host::getLastBlock()->nCount + 1;
-        nNonce          = 0;
+	CB_Block::CB_Block() {
+        headBlock.TryCreateAsSecureVH();
 
-        hashPrevBlock   = 0;
-        hashTXRoot      = nullptr; // not implemented yet.
-        hashAuther      = nullptr; // not implemented yet.
+		headBlock->nTime            = Host::getHostTime();
+		headBlock->nVersion	        = Host::getHostVersion();
+		headBlock->nBits            = sizeof(SHA512_t) * 8;
+		headBlock->nDifficult       = Host::getLastBlock()->nDifficult;
+		headBlock->nCount           = Host::getLastBlock()->nCount + 1;
+		headBlock->nNonce           = 0;
 
-        if (nCount % Host::getNumNewDiff() == 0) {
-            // TODO : Need algorithm for new difficulty.
-        }
+		headBlock->hashPrevBlock    = 0;
+		headBlock->hashTXRoot       = nullptr; // not implemented yet.
+		headBlock->hashAuther       = nullptr; // not implemented yet.
+
+		if (headBlock->nCount % Host::getNumNewDiff() == 0) {
+			// TODO : Need algorithm for new difficulty.
+		}
+	}
+    CB_Block::CB_Block(std::string& filename) {
+
     }
+
     CB_Block::~CB_Block() {
-		if (isHashObjectInitialized)
-			delete hashBlock;
         if (isHashModuleInitialized) 
             delete hashMoudle;
     }
@@ -34,11 +38,6 @@ namespace CoinBill {
     void CB_Block::LazyHashModuleInit() {
         hashMoudle = new CB_CommonHash_SHA512();
         isHashModuleInitialized = true;
-    }
-
-    void CB_Block::LazyHashObjectInit() {
-        hashBlock = new SHA512_t();
-        isHashObjectInitialized = true;
     }
 
     bool CB_Block::updateHash() {
@@ -49,21 +48,16 @@ namespace CoinBill {
             // Just creating a new one...
             LazyHashModuleInit();
 
-        // Same here, we are only initialize as that we need.
-        if (isHashObjectInitialized) 
-            // Create a new hash.
-            LazyHashObjectInit();
-
         try {
-            hashMoudle->Update(nTime);
-            hashMoudle->Update(nVersion);
-            hashMoudle->Update(nBits);
-            hashMoudle->Update(nDifficult);
-            hashMoudle->Update(nCount);
-            hashMoudle->Update(nNonce);
-            hashMoudle->Update(hashPrevBlock);
-            hashMoudle->Update(hashTXRoot);
-            hashMoudle->Update(hashAuther);
+            hashMoudle->Update(headBlock->nTime);
+            hashMoudle->Update(headBlock->nVersion);
+            hashMoudle->Update(headBlock->nBits);
+            hashMoudle->Update(headBlock->nDifficult);
+            hashMoudle->Update(headBlock->nCount);
+            hashMoudle->Update(headBlock->nNonce);
+            hashMoudle->Update(headBlock->hashPrevBlock);
+            hashMoudle->Update(headBlock->hashTXRoot);
+            hashMoudle->Update(headBlock->hashAuther);
             hashMoudle->Verify(hashBlock);
 
         } catch (const std::exception& e) {
@@ -76,11 +70,11 @@ namespace CoinBill {
     bool CB_Block::updateNonce(bool isRandom) {
         if (isRandom) {
             std::random_device device;
-            nNonce = device();
+			headBlock->nNonce = device();
         } else {
             // If nonce is maximum.
             // we have to notice we should update time or something else.
-            if (nNonce++ == std::numeric_limits<decltype(nNonce)>::max())
+            if (headBlock->nNonce++ == std::numeric_limits<decltype(headBlock->nNonce)>::max())
                 return false;
         }
         return true;
@@ -88,6 +82,6 @@ namespace CoinBill {
     void CB_Block::updateTime() {
         // Refresh host time from Host.
         // We will store posix based time.
-        nTime = Host::getHostTime();
+		headBlock->nTime = Host::getHostTime();
     }
 }

@@ -67,5 +67,34 @@ namespace CoinBill {
             *NodeCur = object;
         }
     }; 
+
+    template <class Ty, size_t FPadSize, size_t BPadSize>
+    struct SecurePaddedType {
+        uint8_t BPad[BPadSize];
+        Ty      RV;
+        uint8_t FPad[FPadSize];
+    };
+
+    template <class Ty, unsigned int szRsvMem = 32, unsigned int szRsvList = 128>
+    class SecureResourcePool : ResourcePool<SecurePaddedType<typename Ty, 16, 16>, szRsvMem, szRsvList> {
+        typedef SecurePaddedType<typename Ty, 16, 16>                                       STy;
+        typedef ResourcePool<SecurePaddedType<typename Ty, 16, 16>, szRsvMem, szRsvList>    PTy;
+
+    public:
+        Ty* create() override {
+            return &(PTy::create()->RV);
+        }
+        void distroy(Ty* object) override {
+            uint8_t* chkBPad = offset(object, -16);
+            uint8_t* chkFPad = offset(object, +16);
+
+            for (unsigned int i = 0; i < 16; ++i) {
+                if (chkBPad[i] != 0 || chkFPad[i] != 0)
+                    COINBILL_ASSERT(false);
+            }
+
+            PTy::distory((STy*)chkBPad);
+        }
+    };
 }
 #endif // COINBILL_SUPPORT_MEMPOOL

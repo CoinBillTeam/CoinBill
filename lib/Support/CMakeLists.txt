@@ -1,5 +1,6 @@
 AddCBLib(CoinBillSupport
     CryptModule.cpp
+    ResourceVHNatives.cpp
 
     ${COINBILL_INC_DIR}/Support/BasicType.h
     ${COINBILL_INC_DIR}/Support/BasicUtility.h
@@ -8,4 +9,5 @@ AddCBLib(CoinBillSupport
     ${COINBILL_INC_DIR}/Support/Math.h
     ${COINBILL_INC_DIR}/Support/ResourcePool.h
     ${COINBILL_INC_DIR}/Support/ResourceVH.h
+    ${COINBILL_INC_DIR}/Support/ResourceVHNatives.h
 )

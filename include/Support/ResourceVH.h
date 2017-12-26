@@ -2,6 +2,8 @@
 #define COINBILL_SUPPORT_RESOURCE_VALUE_HANDLER
 
 #include <Support/BasicUtility.h>
+#include <Support/ResourceVHNatives.h>
+
 #include <string>
 #include <fstream>
 #include <bitset>
@@ -11,11 +13,8 @@ namespace CoinBill {
     // We can abstractly access to data, such from file, etc.
     template <class Ty>
     class NOVTABLE ResourceVH {
-    protected:
-        Ty* pResource;
-
     public:
-        virtual Ty* operator->() = 0;
+		virtual Ty* get() = 0;
     };
 
     // ResourceSecureVH class will help you to handle values more safely.
@@ -24,24 +23,81 @@ namespace CoinBill {
     // so make sure you are accessing this variable as multiple times.
     template <class Ty>
     class ResourceSecureVH : public ResourceVH<Ty> {
-        // Not implemented yet.
-    public:
 
-        Ty* operator->() {
+
+    public:
+        ResourceSecureVH() {
 
         }
+		Ty* get() override { return &PV; }
     };
 
     template <class Ty>
     class ResourceMappedVH : public ResourceVH<Ty> {
-        bool isCached;
-        bool isMapped;
+		std::string ResourceName;
+		void* ResourcePos;
+		void* ResourceBuf;
+
+		ResourceVHNatives::FILE_HANDLE FileHandle;
 
     public:
-        Ty* operator->() {
+		ResourceMappedVH(const std::string& filename, size_t position) : 
+			ResourceName(filename), 
+			ResourcePos((void*)position),
+			ResourceBuf(nullptr) { 
 
-        }
+			ResourceVHNatives::CreateFileHandle(FileHandle, filename);
+			ResourceVHNatives::CreateMappedFileView(&ResourceBuf, ResourcePos, FileHandle);
+		}
+		~ResourceMappedVH() {
+			ResourceVHNatives::DeleteMappedFileView(&ResourceBuf);
+			ResourceVHNatives::DeleteFileHandle(FileHandle);
+		}
+
+		Ty* get() override { return ResourceBuf; }
     };
+
+	template <class Ty>
+	class ResourceVHScope {
+		Ty* VVH;
+		ResourceVH<Ty>* RVH;
+
+	public:
+		void Clear() {
+            if (isInitialized()) {
+                delete RVH;
+                VVH = nullptr;
+            }
+		}
+
+		bool TryCreateAsSecureVH() {
+			if (!isInitialized()) {
+				RVH = new ResourceSecureVH<Ty>();
+				VVH = RVH->get();
+				return true;
+			}
+			return false;
+		}
+
+		bool TryCreateAsMappedVH(const std::string& filename, size_t position) {
+			if (!isInitialized()) {
+				RVH = new ResourceMappedVH<Ty>(filename, position);
+				VVH = RVH->get();
+				return true;
+			}
+			return false;
+		}
+
+		bool isInitialized() {
+            return VVH != nullptr;
+		}
+
+		// Used to handling value nativly.
+		Ty* operator  ->() { return  VVH; }
+		Ty* operator Ty*() { return  VVH; }
+		Ty& operator   &() { return *VVH; }
+		Ty& operator Ty&() { return *VVH; }
+	};
 }
 
 
