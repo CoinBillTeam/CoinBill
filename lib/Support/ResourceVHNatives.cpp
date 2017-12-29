@@ -17,11 +17,12 @@ namespace CoinBill {
             return !!CloseHandle(fHandle);
 	    }
 
-	    bool CreateMappedFileView(void** pView, size_t pOffset, size_t pSize, FILE_HANDLE& fHandle) {
-            return !!(*pView = MapViewOfFile(fHandle, FILE_MAP_ALL_ACCESS, pOffset, round_up<4096>(pSize), (size_t)pSize));
+	    bool CreateMappedFileView(void **pView, size_t Offset, size_t Size, FILE_HANDLE& fHandle) {
+            return !!(*pView = MapViewOfFile(fHandle, FILE_MAP_ALL_ACCESS, Offset, round_up<4096>(Size), (size_t)Size));
 	    }
 
 	    bool DeleteMappedFileView(void** pView) {
+            return !!UnmapViewOfFile(*pView);
 	    }
 #endif // COINBILL_WINDOWS
 	}
