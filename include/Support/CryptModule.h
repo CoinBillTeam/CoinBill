@@ -27,9 +27,9 @@ namespace CoinBill
 		Botan::SHA_3_256 Engine;
 
 	public:
-		virtual void Flush() override;
-		virtual void Update(void* pBuf, size_t szBuf) override;
-		virtual void Verify(SHA256_t* pOut) override;
+		void Flush() override;
+		void Update(void* pBuf, size_t szBuf) override;
+		void Verify(SHA256_t* pOut) override;
 
 		template <class Ty, size_t size>
 		void Update(Ty(&pBuf)[size]) {
@@ -49,9 +49,9 @@ namespace CoinBill
 		Botan::SHA_3_512 Engine;
 
 	public:
-		virtual void Flush() override;
-		virtual void Update(void* pBuf, size_t szBuf) override;
-		virtual void Verify(SHA512_t* pOut) override;
+		void Flush() override;
+		void Update(void* pBuf, size_t szBuf) override;
+		void Verify(SHA512_t* pOut) override;
 
 		template <class Ty, size_t size>
 		void Update(Ty(&pBuf)[size]) {

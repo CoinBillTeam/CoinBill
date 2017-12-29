@@ -11,7 +11,7 @@ namespace CoinBill {
 
 		bool CreateFileHandle(FILE_HANDLE& fHandle, const std::string& filename);
 		bool DeleteFileHandle(FILE_HANDLE& fHandle);
-		bool CreateMappedFileView(void **pView, void* pOffset, FILE_HANDLE& fHandle);
+		bool CreateMappedFileView(void **pView, size_t Offset, size_t Size, FILE_HANDLE& fHandle);
 		bool DeleteMappedFileView(void **pView);
     }
 }

@@ -9,95 +9,120 @@
 #include <bitset>
 
 namespace CoinBill {
-    // The basic Resource Value Handler.
-    // We can abstractly access to data, such from file, etc.
+    // The basic resource value handler type.
     template <class Ty>
-    class NOVTABLE ResourceVH {
-    public:
-		virtual Ty* get() = 0;
-    };
-
-    // ResourceSecureVH class will help you to handle values more safely.
-    // We will update / check crc value every time when you accessing it.
-    // Note that will very slow when you accessing.
-    // so make sure you are accessing this variable as multiple times.
-    template <class Ty>
-    class ResourceSecureVH : public ResourceVH<Ty> {
-
+    class ResourceVH {
+    protected:
+        Ty* pResource;
 
     public:
-        ResourceSecureVH() {
+        virtual ~ResourceVH() = default;
 
-        }
-		Ty* get() override { return &PV; }
+        // Default operator overrides for resource handler.
+        // recommend not overriding this overrides.
+        // you can basically accessing it using opeartors.
+        virtual Ty* operator->() { return pResource;  }
+        virtual Ty& operator* () { return *pResource; }
     };
 
-    template <class Ty>
+    template <class Ty, unsigned int Index = 1>
     class ResourceMappedVH : public ResourceVH<Ty> {
-		std::string ResourceName;
-		void* ResourcePos;
-		void* ResourceBuf;
+        ResourceVHNatives::FILE_HANDLE fileHandle;
 
-		ResourceVHNatives::FILE_HANDLE FileHandle;
+        bool isSizeSmallerThanPage;
+        bool isReMappingNeedsForBigSize;
+
+        bool isCurrentViewOnFirst;
+        unsigned int currentViewIndex;
+        unsigned int currentViewSize;
+
+        bool createNewView(unsigned int Offset, unsigned int Size) {
+            if(&ResourceVH<Ty>::pResource != nullptr)
+                ResourceVHNatives::DeleteMappedFileView(&ResourceVH<Ty>::pResource);
+
+            return ResourceVHNatives::CreateMappedFileView(
+                &ResourceVH<Ty>::pResource,             // Binding on pResource.
+                Offset,                                 // Offset that we starting from.
+                Size,                                   // Size that we are going to map.
+                fileHandle                              // Use file for current selected file.
+            );
+        }
+
+        size_t getFileSize(const std::string fileName) {
+            std::ifstream fStream(fileName, std::ifstream::ate | std::ifstream::binary);
+            return fStream.tellg();
+        }
 
     public:
-		ResourceMappedVH(const std::string& filename, size_t position) : 
-			ResourceName(filename), 
-			ResourcePos((void*)position),
-			ResourceBuf(nullptr) { 
-
-			ResourceVHNatives::CreateFileHandle(FileHandle, filename);
-			ResourceVHNatives::CreateMappedFileView(&ResourceBuf, ResourcePos, FileHandle);
-		}
-		~ResourceMappedVH() {
-			ResourceVHNatives::DeleteMappedFileView(&ResourceBuf);
-			ResourceVHNatives::DeleteFileHandle(FileHandle);
-		}
-
-		Ty* get() override { return ResourceBuf; }
-    };
-
-	template <class Ty>
-	class ResourceVHScope {
-		Ty* VVH;
-		ResourceVH<Ty>* RVH;
-
-	public:
-		void Clear() {
-            if (isInitialized()) {
-                delete RVH;
-                VVH = nullptr;
+        ResourceMappedVH(const std::string& fileName, size_t Offset, size_t Size = 0, bool createView = false) : 
+                isSizeSmallerThanPage       (false), 
+                isReMappingNeedsForBigSize  (false),
+                isCurrentViewOnFirst        (false),
+                currentViewIndex            (0), 
+                currentViewSize             (0) {
+            // We are precalutating a file size before we mapping.
+            // usually, we have a big chunk of file so we will need to make sure is that mapping all is needed.
+            const size_t fileSize = Size ? Size : getFileSize(fileName);
+            if(fileSize <= 4096) {
+                isSizeSmallerThanPage       = true;
+            } else if(fileSize >= 4096 * 4) {
+                isReMappingNeedsForBigSize  = true;
             }
-		}
 
-		bool TryCreateAsSecureVH() {
-			if (!isInitialized()) {
-				RVH = new ResourceSecureVH<Ty>();
-				VVH = RVH->get();
-				return true;
-			}
-			return false;
-		}
+            // Opening a file as native os handle
+            // we have to make it as a os managed handle because we are opening it as mapped file.
+            ResourceVHNatives::CreateFileHandle(fileHandle, fileName);
+            COINBILL_ASSERT(fileHandle != nullptr);
 
-		bool TryCreateAsMappedVH(const std::string& filename, size_t position) {
-			if (!isInitialized()) {
-				RVH = new ResourceMappedVH<Ty>(filename, position);
-				VVH = RVH->get();
-				return true;
-			}
-			return false;
-		}
+            if (isSizeSmallerThanPage || createView) {
+                // Now we are creating a native mapped file view.
+                // that means we can accessing it directly, as that we want.
+                if(!createNewView(Offset, Size)) {
+                    ResourceVH<Ty>::pResource = nullptr;
+                }
 
-		bool isInitialized() {
-            return VVH != nullptr;
-		}
+                COINBILL_ASSERT(ResourceVH<Ty>::pResource != nullptr);
+            }
+        }
 
-		// Used to handling value nativly.
-		Ty* operator  ->() { return  VVH; }
-		Ty* operator Ty*() { return  VVH; }
-		Ty& operator   &() { return *VVH; }
-		Ty& operator Ty&() { return *VVH; }
-	};
+        virtual ~ResourceMappedVH() {
+            ResourceVHNatives::DeleteMappedFileView(&ResourceVH<Ty>::pResource);
+            ResourceVHNatives::DeleteFileHandle(fileHandle);
+        }
+
+        Ty* operator->() override {
+            if (!isSizeSmallerThanPage) {
+                if (!isCurrentViewOnFirst) {
+                    currentViewIndex            = 0;
+                    currentViewSize             = sizeof(Ty);
+                    isCurrentViewOnFirst        = true;
+
+                    createNewView(0, sizeof(Ty));
+                }
+            }
+
+            return ResourceVH<Ty>::pResource;
+        }
+
+        Ty& operator*() override {
+            return *(operator->());
+        }
+
+        Ty& operator[](unsigned int index) {
+            if (!isSizeSmallerThanPage) {
+                isCurrentViewOnFirst = false;
+
+                if (currentViewIndex != index) {
+                    currentViewIndex            = index;
+                    currentViewSize             = sizeof(Ty);
+
+                    createNewView(index * sizeof(Ty), sizeof(Ty));
+                }
+                return ResourceVH<Ty>::pResource;
+            }
+            return ResourceVH<Ty>::pResource[index];
+        }
+    };
 }
 
 

@@ -75,11 +75,11 @@ namespace CoinBill
         return 0;
     }
 
-    template <unsigned int roundV, unsigned int roundBV = roundV / 8>
+    template <unsigned int roundV>
     constexpr inline size_t round_up(size_t size) {
         size_t rounded = 0;
         while (rounded > size)
-            rounded += roundBV;
+            rounded += roundV;
         return rounded;
     }
 }
