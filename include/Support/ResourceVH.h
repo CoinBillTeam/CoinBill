@@ -28,6 +28,7 @@ namespace CoinBill {
     template <class Ty, unsigned int Index = 1>
     class ResourceMappedVH : public ResourceVH<Ty> {
         ResourceVHNatives::FILE_HANDLE fileHandle;
+        unsigned int ViewGlobalOffset;
 
         bool isSizeSmallerThanPage;
         bool isReMappingNeedsForBigSize;
@@ -35,6 +36,7 @@ namespace CoinBill {
         bool isCurrentViewOnFirst;
         unsigned int currentViewIndex;
         unsigned int currentViewSize;
+       
 
         bool createNewView(unsigned int Offset, unsigned int Size) {
             if(&ResourceVH<Ty>::pResource != nullptr)
@@ -42,7 +44,7 @@ namespace CoinBill {
 
             return ResourceVHNatives::CreateMappedFileView(
                 &ResourceVH<Ty>::pResource,             // Binding on pResource.
-                Offset,                                 // Offset that we starting from.
+                Offset + ViewGlobalOffset,              // Offset that we starting from.
                 Size,                                   // Size that we are going to map.
                 fileHandle                              // Use file for current selected file.
             );
@@ -54,12 +56,13 @@ namespace CoinBill {
         }
 
     public:
-        ResourceMappedVH(const std::string& fileName, size_t Offset, size_t Size = 0, bool createView = false) : 
+        ResourceMappedVH(const std::string& fileName, size_t GlobOffset, size_t Size = 0) : 
                 isSizeSmallerThanPage       (false), 
                 isReMappingNeedsForBigSize  (false),
                 isCurrentViewOnFirst        (false),
                 currentViewIndex            (0), 
-                currentViewSize             (0) {
+                currentViewSize             (0),
+                ViewGlobalOffset(GlobOffset) {
             // We are precalutating a file size before we mapping.
             // usually, we have a big chunk of file so we will need to make sure is that mapping all is needed.
             const size_t fileSize = Size ? Size : getFileSize(fileName);
@@ -74,15 +77,13 @@ namespace CoinBill {
             ResourceVHNatives::CreateFileHandle(fileHandle, fileName);
             COINBILL_ASSERT(fileHandle != nullptr);
 
-            if (isSizeSmallerThanPage || createView) {
-                // Now we are creating a native mapped file view.
-                // that means we can accessing it directly, as that we want.
-                if(!createNewView(Offset, Size)) {
-                    ResourceVH<Ty>::pResource = nullptr;
-                }
-
-                COINBILL_ASSERT(ResourceVH<Ty>::pResource != nullptr);
+            // Now we are creating a native mapped file view.
+            // that means we can accessing it directly, as that we want.
+            if(!createNewView(0, Size)) {
+                ResourceVH<Ty>::pResource = nullptr;
             }
+
+            COINBILL_ASSERT(ResourceVH<Ty>::pResource != nullptr);
         }
 
         virtual ~ResourceMappedVH() {
