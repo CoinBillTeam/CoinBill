@@ -75,7 +75,7 @@ namespace CoinBill {
             // Opening a file as native os handle
             // we have to make it as a os managed handle because we are opening it as mapped file.
             ResourceVHNatives::CreateFileHandle(fileHandle, fileName);
-            COINBILL_ASSERT(fileHandle != nullptr);
+            COINBILL_ASSERT_DEBUG(fileHandle != nullptr);
 
             // Now we are creating a native mapped file view.
             // that means we can accessing it directly, as that we want.
@@ -83,7 +83,7 @@ namespace CoinBill {
                 ResourceVH<Ty>::pResource = nullptr;
             }
 
-            COINBILL_ASSERT(ResourceVH<Ty>::pResource != nullptr);
+            COINBILL_ASSERT_DEBUG(ResourceVH<Ty>::pResource != nullptr);
         }
 
         virtual ~ResourceMappedVH() {

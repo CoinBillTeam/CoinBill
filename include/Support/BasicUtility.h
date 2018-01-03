@@ -25,7 +25,7 @@
 #endif
 
 #if _DEBUG && (defined(COINBILL_MAC_OS) || defined(COINBILL_UNIX_OS))
-#  define COINBILL_ASSERT(exp) {                                  \
+#  define COINBILL_ASSERT_DEBUG(exp) {                            \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
       oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
@@ -36,7 +36,7 @@
     }                                                             \
   }
 #elif _DEBUG && defined(COINBILL_WINDOWS)
-#  define COINBILL_ASSERT(exp) {                                  \
+#  define COINBILL_ASSERT_DEBUG(exp) {                            \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
       oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
@@ -48,9 +48,33 @@
   }
 #endif // DEBUG and Unix or Windows
 
-#ifndef COINBILL_ASSERT
-#  define COINBILL_ASSERT(exp) ((void)(exp))
+#ifndef COINBILL_ASSERT_DEBUG
+#  define COINBILL_ASSERT_DEBUG(exp) ((void)(exp))
 #endif
+
+#if (defined(COINBILL_MAC_OS) || defined(COINBILL_UNIX_OS))
+#  define COINBILL_ASSERT(exp) {                                  \
+    if (!(exp)) {                                                 \
+      std::ostringstream oss;                                     \
+      oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
+          << (int)(__LINE__) << "): " << (char*)(__func__)        \
+          << std::endl;                                           \
+      std::cerr << oss.str();                                     \
+      raise(SIGTRAP);                                             \
+    }                                                             \
+  }
+#elif defined(COINBILL_WINDOWS)
+#  define COINBILL_ASSERT(exp) {                                  \
+    if (!(exp)) {                                                 \
+      std::ostringstream oss;                                     \
+      oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
+          << (int)(__LINE__) << "): " << (char*)(__FUNCTION__)    \
+          << std::endl;                                           \
+      std::cerr << oss.str();                                     \
+      __debugbreak();                                             \
+    }                                                             \
+  }
+#endif // DEBUG and Unix or Windows
 
 namespace CoinBill
 {
